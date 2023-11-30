@@ -4,10 +4,8 @@ const path = require("path");
 Client.setMaxListeners(0);
 
 const config = require("./src/config");
-const connect = require("./src/database/connect");
 const antiCrash = require("./src/utils/antiCrash");
 const deployCommands = require("./src/utils/deployCommands");
-const reminder = require(`./src/events/reminder.js`);
 const server = require("./src/utils/server");
 const logo = require("./src/assest/logo");
 const moment = require("moment");
@@ -25,11 +23,26 @@ const client = new Client({
 
 client.on("ready", async () => {
   // Read all files in the directory
-  connect(client, config);
   server(client, config);
   antiCrash(client, config);
   deployCommands(client, config);
 
+  // The directory where your select menu files are stored
+  const databseDirectory = path.join(__dirname, "src/database");
+  // Read all files in the directory
+  fs.readdir(databseDirectory, (error, files) => {
+    if (error) {
+      console.error("Error reading select menu directory:", error.message);
+      return;
+    }
+    files.forEach((file) => {
+      if (file.endsWith(".js")) {
+        const databsePath = path.join(databseDirectory, file);
+        const databse = require(databsePath);
+        databse(client, config);
+      }
+    });
+  });
   // The directory where your select menu files are stored
   const selectMenuDirectory = path.join(__dirname, "src/select menu");
   // Read all files in the directory
@@ -62,7 +75,6 @@ client.on("ready", async () => {
       }
     });
   });
-
   // ------------ Interactions ------------ //
   const questions = require(`./src/interaction/questions`)(client, config);
   const qna = require(`./src/interaction/qna`)(client, config);
