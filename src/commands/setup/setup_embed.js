@@ -17,10 +17,7 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   client.on("interactionCreate", async (interaction) => {
-    if (
-      (interaction.isCommand() && interaction.commandName === "setup") ||
-      !interaction.isButton()
-    ) {
+    if (interaction.isCommand() && interaction.commandName === "setup") {
       console.log(
         `\x1b[31m  〢`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
