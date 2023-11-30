@@ -66,5 +66,6 @@ module.exports = {
 
   //-------------| API Keys |-------------//
   OpenAI_key: process.env.OpenAI_Key,
+  Lang: process.env.Lang_Key,
   //--------------------------------------//,
 };

@@ -16,7 +16,7 @@ module.exports = async (client, config) => {
   let Logo = guild.iconURL({ dynamic: true });
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isButton() && interaction.customId === "#ap_reject") {
+    if (interaction.isButton() && interaction.customId === "#silent_decline") {
       try {
         await interaction.deferReply({ ephemeral: true });
         //// Check the permissions ///
@@ -85,10 +85,10 @@ module.exports = async (client, config) => {
           /// Rename The Thread ///
           await threadName.setName("🧤︱" + `${userName}` + " Declined");
           /// Lock the thread ///
-          await wait(5000); // ** cooldown 10 seconds ** \\
+          await wait(1000); // ** cooldown 10 seconds ** \\
           await threadName.setLocked(true);
           /// Archive the thread ///
-          await wait(8000); // ** cooldown 10 seconds ** \\
+          await wait(1500); // ** cooldown 10 seconds ** \\
           await threadName.setArchived(true);
           /// Console Action ///
           console.log(

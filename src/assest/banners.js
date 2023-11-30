@@ -46,6 +46,7 @@ module.exports = {
   acceptBanner: `https://i.imgur.com/EHfY3HX.png`,
   acceptFinishbanner: `https://i.imgur.com/VTpVwzj.png`,
   rejectBanner: `https://i.imgur.com/by7QTrf.png`,
+  canceled: `https://i.imgur.com/Pw6T03Y.png`,
   dmRejectBanner: "https://i.imgur.com/qAbnky8.png",
   silentAcceptbanner: `https://i.imgur.com/oasWVsy.png`,
   silentRejectbanner: "https://i.imgur.com/6RUH0Ym.png",
@@ -55,6 +56,10 @@ module.exports = {
   dmApologizeBanner: `https://i.imgur.com/f3UhhWO.png`,
   FinishpromoteBanner: `https://i.imgur.com/cFj7jMJ.png`,
   appResultBanner: `https://i.imgur.com/EkDxKUJ.png`,
+
+  // ---| Member List |---///
+  list: `https://i.imgur.com/mMxiJ9k.png`,
+  //--------------------------------------//,
 
   ///---| Images-Icons |---///
   sunLogo: `https://i.imgur.com/Ly7vC7l.png`,
@@ -66,6 +71,7 @@ module.exports = {
   setupIcon: `https://i.imgur.com/mwZ3A1C.png`,
   bannedIcon: `https://i.imgur.com/DFWTABA.png`,
   importantIcon: `https://i.imgur.com/89ZsrZx.png`,
+  canceledIcon: `https://i.imgur.com/nXUFePl.png`,
   //--------------------------------------//,
   parfaitIcon: `https://i.imgur.com/NpNsiR1.png`,
   footerIcon: `https://i.imgur.com/Ze74maV.png`,

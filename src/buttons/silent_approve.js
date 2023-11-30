@@ -12,7 +12,7 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isButton() && interaction.customId === "#silent_accept") {
+    if (interaction.isButton() && interaction.customId === "#silent_approve") {
       try {
         await interaction.deferReply({ ephemeral: true });
 
@@ -120,10 +120,10 @@ module.exports = async (client, config) => {
           /// Rename The Thread ///
           await threadName.setName("🧤︱" + `${userName}` + " Approved");
           /// Lock the thread ///
-          await wait(5000); // ** cooldown 10 seconds ** \\
+          await wait(1000); // ** cooldown 10 seconds ** \\
           await threadName.setLocked(true);
           /// Archive the thread ///
-          await wait(8000); // ** cooldown 10 seconds ** \\
+          await wait(1500); // ** cooldown 10 seconds ** \\
           await threadName.setArchived(true);
 
           const applicationStatus = await Application.findOneAndUpdate({

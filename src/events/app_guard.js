@@ -4,6 +4,10 @@ const wait = require("util").promisify(setTimeout);
 const Application = require("../../src/database/models/application");
 const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
 
+const banners = require("../assest/banners.js");
+const color = require("../assest/color.js");
+const emojis = require("../assest/emojis");
+
 module.exports = async (client, config) => {
   setInterval(async () => {
     try {
@@ -67,12 +71,10 @@ module.exports = async (client, config) => {
               }
 
               let embed = new MessageEmbed(message.embeds[0])
-                .setTitle(
-                  `<:alert:1091836744325939281> ${application.username} Left SUN`,
-                )
-                .setColor("#2b2d31")
-                .setImage("https://i.imgur.com/by7QTrf.png")
-                .setThumbnail("https://i.imgur.com/rERdmQF.png")
+                .setTitle(`${emojis.alert} ${application.username} Left SUN`)
+                .setColor(color.gray)
+                .setImage(banners.canceled)
+                .setThumbnail(canceledIcon)
                 .setTimestamp();
               /// Edit Review Embed ///
               await message

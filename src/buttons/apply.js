@@ -9,6 +9,9 @@ const {
 const moment = require("moment");
 const wait = require("util").promisify(setTimeout);
 
+const Filter = require("bad-words");
+const filter = new Filter();
+
 const Counter = require("../../src/database/models/counter");
 const Application = require("../../src/database/models/application");
 const messages = require("../assest/messages.js");
@@ -18,7 +21,6 @@ const emojis = require("../assest/emojis");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
-
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isButton() && interaction.customId === "#ap_apply") {
       try {
@@ -102,7 +104,9 @@ module.exports = async (client, config) => {
         );
 
         await interaction.showModal(application_modal);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error in application script:", error.message);
+      }
     }
 
     //// Send application results in review room ////
@@ -112,8 +116,23 @@ module.exports = async (client, config) => {
       let user_ct = interaction.fields.getTextInputValue("ap_userct");
       let user_legends = interaction.fields.getTextInputValue("ap_userlegends");
       let user_why = interaction.fields.getTextInputValue("ap_userwhy");
+      // Check if user_code contains any spaces
+      if (/[\s~`!@#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?()\._]/g.test(user_code)) {
+        return interaction.update({
+          embeds: [
+            {
+              title: `${emojis.cross} Invalid Smash Code`,
+              description: `${emojis.whiteDot} Your smash code cannot contain spaces or special characters`,
+              color: color.gray,
+            },
+          ],
+          ephemeral: true,
+          components: [],
+        });
+      }
+      // Check if the user's age is a valid number
       if (isNaN(user_age)) {
-        return interaction.reply({
+        return interaction.update({
           embeds: [
             {
               title: `${emojis.cross} Incorrect Age  Format`,
@@ -122,9 +141,51 @@ module.exports = async (client, config) => {
             },
           ],
           ephemeral: true,
+          components: [],
         });
       }
-
+      // Check if the user's age is above 16
+      if (parseInt(user_age) < 14) {
+        return interaction.update({
+          embeds: [
+            {
+              title: `${emojis.cross} Age Requirement Not Met`,
+              description: `${emojis.whiteDot} You must be at least 14 years old to apply`,
+              color: color.gray,
+            },
+          ],
+          ephemeral: true,
+          components: [],
+        });
+      }
+      // Check if competitions/trainings question "yes", "yeah", "no", "nah"
+      if (!["yes", "yeah", "no", "nah"].includes(user_ct.toLowerCase())) {
+        return interaction.update({
+          embeds: [
+            {
+              title: `${emojis.cross} Invalid Answer for Competitions/Trainings Question`,
+              description: `${emojis.whiteDot} Please answer the competitions/trainings question with either \`\`Yes\`\` or \`\`No\`\``,
+              color: color.gray,
+            },
+          ],
+          ephemeral: true,
+          components: [],
+        });
+      }
+      // Check if the answers contain abusive or obscene words
+      if (filter.isProfane(user_legends) || filter.isProfane(user_why)) {
+        return interaction.update({
+          embeds: [
+            {
+              title: `${emojis.cross} Inappropriate Content Detected`,
+              description: `${emojis.whiteDot} Your application contains inappropriate content. Please ensure that your answers are respectful and do not include abusive or obscene language.`,
+              color: color.gray,
+            },
+          ],
+          ephemeral: true,
+          components: [],
+        });
+      }
       //// Create Thread ///
       let applyChannel = interaction.guild.channels.cache.get(
         config.applyChannel,
@@ -166,51 +227,38 @@ module.exports = async (client, config) => {
 
       const firstRow = new MessageActionRow().addComponents([
         new MessageButton()
-          .setStyle(5) //-->> Link Style
-          .setLabel(` `)
-          .setURL(`https://smashlegends.gg/en/user/${user_code}`)
-          .setEmoji(emojis.slg),
-        new MessageButton()
           .setStyle(3) //-->> Green Color
           .setCustomId("#ap_approve")
           .setLabel(`Aprove ${interaction.user.username}`)
           .setEmoji(emojis.accept),
+        new MessageButton()
+          .setStyle(3)
+          .setCustomId("#silent_approve")
+          .setLabel(``)
+          .setEmoji(emojis.s_accept),
         new MessageButton()
           .setStyle(1) //-->> Blurple Color
           .setCustomId("#ap_decline")
           .setLabel("Decline")
           .setEmoji(emojis.reject),
         new MessageButton()
-          .setStyle(2) //-->> Grey Color
-          .setCustomId("#ap_reply")
-          .setLabel(``)
-          .setEmoji(emojis.dm),
+          .setStyle(1)
+          .setCustomId("#silent_decline")
+          .setLabel("")
+          .setEmoji(emojis.s_reject),
       ]);
 
       const secondRow = new MessageActionRow().addComponents([
         new MessageButton()
-          .setStyle(2)
-          .setCustomId("#silent_accept")
-          .setLabel(`Approve Silently`)
-          .setEmoji(emojis.s_accept),
-        new MessageButton()
-          .setStyle(2)
-          .setCustomId("#silent_reject")
-          .setLabel("Decline Silently")
-          .setEmoji(emojis.s_reject),
-        new MessageButton()
           .setStyle(4) //-->> Red Color
           .setCustomId("#ap_freeze")
-          .setLabel(`Freeze⠀`)
+          .setLabel(`Freeze ${interaction.user.username}`)
           .setEmoji(emojis.freeze),
-      ]);
-
-      const dev = new MessageActionRow().addComponents([
         new MessageButton()
-          .setStyle(2)
-          .setCustomId("#profile")
-          .setLabel(`Dev`)
-          .setEmoji(emojis.dev),
+          .setStyle(2) //-->> Grey Color
+          .setCustomId("#ap_reply")
+          .setLabel(`Message`)
+          .setEmoji(emojis.dm),
       ]);
 
       /// Embed of data in review room ///

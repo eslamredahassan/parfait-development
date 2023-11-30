@@ -12,6 +12,11 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
+          name: "squad_sun",
+          description: `[Dev] A list of Sun members`,
+          type: "CHAT_INPUT",
+        },
+        {
           name: "about",
           description: `[Dev] Learn more about Parfait bot`,
           type: "CHAT_INPUT",
