@@ -24,6 +24,7 @@ const client = new Client({
 });
 
 client.on("ready", async () => {
+  // Read all files in the directory
   connect(client, config);
   server(client, config);
   antiCrash(client, config);
