@@ -17,36 +17,33 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isCommand()) {
-      switch (interaction.commandName) {
-        case "contact_dev": {
-          console.log(
-            `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${interaction.user.username} USED`,
-            `\x1b[35m Message Dev Command`,
-          );
-          //// Modal application code ///
-          let sendToDev_modal = new Modal()
-            .setTitle(`📧 Send a message to the developer`)
-            .setCustomId(`sendToDev_modal`);
+    if (interaction.isCommand() && interaction.commandName === "contact_dev") {
+      console.log(
+        `\x1b[0m`,
+        `\x1b[31m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("lll")}`,
+        `\x1b[34m ${interaction.user.username} USED`,
+        `\x1b[35m Message Dev Command`,
+      );
+      //// Modal application code ///
+      let sendToDev_modal = new Modal()
+        .setTitle(`📧 Send a message to the developer`)
+        .setCustomId(`sendToDev_modal`);
 
-          const message = new TextInputComponent()
-            .setCustomId("user_message")
-            .setLabel(`Message`.substring(0, 45))
-            .setMinLength(1)
-            .setMaxLength(365)
-            .setRequired(true)
-            .setPlaceholder(`Type your message here`)
-            .setStyle(2);
+      const message = new TextInputComponent()
+        .setCustomId("user_message")
+        .setLabel(`Message`.substring(0, 45))
+        .setMinLength(1)
+        .setMaxLength(365)
+        .setRequired(true)
+        .setPlaceholder(`Type your message here`)
+        .setStyle(2);
 
-          let row_usermessage = new MessageActionRow().addComponents(message);
-          sendToDev_modal.addComponents(row_usermessage);
-          await interaction.showModal(sendToDev_modal);
-        }
-      }
+      let row_usermessage = new MessageActionRow().addComponents(message);
+      sendToDev_modal.addComponents(row_usermessage);
+      await interaction.showModal(sendToDev_modal);
     }
+
     if (interaction.customId === "sendToDev_modal") {
       let message = interaction.fields.getTextInputValue("user_message");
 

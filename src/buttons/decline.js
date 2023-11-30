@@ -21,55 +21,49 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isButton()) {
-      switch (interaction.customId) {
-        case "#ap_decline": {
-          const ID = interaction.message.embeds[0].footer.text;
-          const user = await interaction.guild.members.fetch(ID);
+    if (interaction.isButton() && interaction.customId === "#ap_decline") {
+      const ID = interaction.message.embeds[0].footer.text;
+      const user = await interaction.guild.members.fetch(ID);
 
-          //// Modal application code ///
-          let reply_modal = new Modal()
-            .setTitle(`Rejection reason of ${user.user.username}`)
-            .setCustomId(`ap_decline`);
+      //// Modal application code ///
+      let reply_modal = new Modal()
+        .setTitle(`Rejection reason of ${user.user.username}`)
+        .setCustomId(`ap_decline`);
 
-          const ap_reason = new TextInputComponent()
-            .setCustomId("ap_reason")
-            .setLabel(`Direct Messaging box`.substring(0, 45))
-            .setMinLength(1)
-            .setMaxLength(365)
-            .setRequired(false)
-            .setPlaceholder(`Type your message here`)
-            .setStyle(2);
+      const ap_reason = new TextInputComponent()
+        .setCustomId("ap_reason")
+        .setLabel(`Direct Messaging box`.substring(0, 45))
+        .setMinLength(1)
+        .setMaxLength(365)
+        .setRequired(false)
+        .setPlaceholder(`Type your message here`)
+        .setStyle(2);
 
-          let row_reply = new MessageActionRow().addComponents(ap_reason);
-          reply_modal.addComponents(row_reply);
+      let row_reply = new MessageActionRow().addComponents(ap_reason);
+      reply_modal.addComponents(row_reply);
 
-          const perms = [`${config.devRole}`, `${config.STAFF}`];
-          let staff = guild.members.cache.get(interaction.user.id);
-          if (staff.roles.cache.hasAny(...perms)) {
-            await interaction.showModal(reply_modal);
-          } else {
-            await interaction.reply({
-              embeds: [
-                {
-                  title: `${emojis.alert} Permission denied`,
-                  description: errors.permsError,
-                  color: color.gray,
-                },
-              ],
-              //this is the important part
-              ephemeral: true,
-            });
-            console.log(
-              `\x1b[0m`,
-              `\x1b[31m 🛠`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[33m Permission denied`,
-            );
-          }
-        }
-        default:
-          break;
+      const perms = [`${config.devRole}`, `${config.STAFF}`];
+      let staff = guild.members.cache.get(interaction.user.id);
+      if (staff.roles.cache.hasAny(...perms)) {
+        await interaction.showModal(reply_modal);
+      } else {
+        await interaction.reply({
+          embeds: [
+            {
+              title: `${emojis.alert} Permission denied`,
+              description: errors.permsError,
+              color: color.gray,
+            },
+          ],
+          //this is the important part
+          ephemeral: true,
+        });
+        console.log(
+          `\x1b[0m`,
+          `\x1b[31m 🛠`,
+          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m Permission denied`,
+        );
       }
     }
     //// Send application results in review room ////

@@ -11,42 +11,36 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isButton()) {
-      switch (interaction.customId) {
-        case "#ap_reply": {
-          console.log(
-            `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${interaction.user.username} USED`,
-            `\x1b[35m Reply Button`,
-          );
+    if (interaction.isButton() && interaction.customId === "#ap_reply") {
+      console.log(
+        `\x1b[0m`,
+        `\x1b[31m 🛠`,
+        `\x1b[33m ${moment(Date.now()).format("lll")}`,
+        `\x1b[34m ${interaction.user.username} USED`,
+        `\x1b[35m Reply Button`,
+      );
 
-          const footerID = interaction.message.embeds[0].footer.text;
-          const user = await interaction.guild.members.fetch(footerID);
+      const footerID = interaction.message.embeds[0].footer.text;
+      const user = await interaction.guild.members.fetch(footerID);
 
-          //// Modal application code ///
-          let reply_modal = new Modal()
-            .setTitle(`Send message to ${user.user.username}`)
-            .setCustomId(`reply_modal`);
+      //// Modal application code ///
+      let reply_modal = new Modal()
+        .setTitle(`Send message to ${user.user.username}`)
+        .setCustomId(`reply_modal`);
 
-          const ap_reply = new TextInputComponent()
-            .setCustomId("ap_reply")
-            .setLabel(`Direct Messaging box`.substring(0, 45))
-            .setMinLength(1)
-            .setMaxLength(365)
-            .setRequired(true)
-            .setPlaceholder(`Type your message here`)
-            .setStyle(2);
+      const ap_reply = new TextInputComponent()
+        .setCustomId("ap_reply")
+        .setLabel(`Direct Messaging box`.substring(0, 45))
+        .setMinLength(1)
+        .setMaxLength(365)
+        .setRequired(true)
+        .setPlaceholder(`Type your message here`)
+        .setStyle(2);
 
-          let row_reply = new MessageActionRow().addComponents(ap_reply);
-          reply_modal.addComponents(row_reply);
+      let row_reply = new MessageActionRow().addComponents(ap_reply);
+      reply_modal.addComponents(row_reply);
 
-          await interaction.showModal(reply_modal);
-        }
-        default:
-          break;
-      }
+      await interaction.showModal(reply_modal);
     }
     //// Send application results in review room ////
     if (interaction.customId === "reply_modal") {
@@ -130,7 +124,8 @@ module.exports = async (client, config) => {
           ephemeral: true,
           components: [],
         });
-      } catch (e) {
+      } catch (error) {
+        console.log("Error in reply to user:", error.message);
         return await interaction.reply({
           content: `The ${user} Dms Were Closed.`,
           ephemeral: true,

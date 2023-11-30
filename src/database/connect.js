@@ -2,16 +2,19 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const config = require("../config");
 
-module.exports = async () => {
-  // Connect to MongoDB
-  mongoose
-    .connect(config.database, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      dbName: "ParfaitDatabaseDev",
-    })
-    .then(() => {
-      //const connection = mongoose.connection.useDb("ParfaitDatabaseDev");
+const databaseConnection = async () => {
+  let retryCount = 0;
+  const maxRetries = 5;
+  const retryInterval = 20 * 1000; // 20 seconds in milliseconds
+
+  const connection = async () => {
+    try {
+      await mongoose.connect(config.database, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        dbName: "ParfaitDatabaseDev",
+      });
+
       console.log(
         `\x1b[0m`,
         `\x1b[33m 〢`,
@@ -19,8 +22,7 @@ module.exports = async () => {
         `\x1b[31m Database`,
         `\x1b[32m CONNECTED`,
       );
-    })
-    .catch((error) => {
+    } catch (error) {
       console.log(
         `\x1b[0m`,
         `\x1b[33m 〢`,
@@ -29,5 +31,21 @@ module.exports = async () => {
         `\x1b[323m ERROR: `,
         error.message,
       );
-    });
+
+      if (retryCount < maxRetries) {
+        retryCount++;
+        console.log(
+          `Retrying connection (Attempt ${retryCount}/${maxRetries})...`,
+        );
+        setTimeout(connection, retryInterval);
+      } else {
+        console.log(`Max retries reached. Unable to connect to the database.`);
+        process.exit(1); // You can handle this differently based on your application's needs
+      }
+    }
+  };
+
+  await connection();
 };
+
+module.exports = databaseConnection;

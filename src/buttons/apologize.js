@@ -23,50 +23,43 @@ module.exports = async (client, config) => {
 
   client.on("interactionCreate", async (interaction) => {
     try {
-      if (interaction.isButton()) {
-        switch (interaction.customId) {
-          case "#ap_apologize": {
-            const ID = interaction.message.embeds[0].footer.text;
-            const user = await interaction.guild.members.fetch(ID);
+      if (interaction.isButton() && interaction.customId === "#ap_apologize") {
+        const ID = interaction.message.embeds[0].footer.text;
+        const user = await interaction.guild.members.fetch(ID);
 
-            //// Modal application code ///
-            let reply_modal = new Modal()
-              .setTitle(`Apologize reason of ${user.user.username}`)
-              .setCustomId(`ap_apologize`);
+        //// Modal application code ///
+        let reply_modal = new Modal()
+          .setTitle(`Apologize reason of ${user.user.username}`)
+          .setCustomId(`ap_apologize`);
 
-            const ap_reason = new TextInputComponent()
-              .setCustomId("ap_reason")
-              .setLabel(`Direct Messaging box`.substring(0, 45))
-              .setMinLength(1)
-              .setMaxLength(365)
-              .setRequired(false)
-              .setPlaceholder(`Type your message here`)
-              .setStyle(2);
+        const ap_reason = new TextInputComponent()
+          .setCustomId("ap_reason")
+          .setLabel(`Direct Messaging box`.substring(0, 45))
+          .setMinLength(1)
+          .setMaxLength(365)
+          .setRequired(false)
+          .setPlaceholder(`Type your message here`)
+          .setStyle(2);
 
-            let row_reply = new MessageActionRow().addComponents(ap_reason);
-            reply_modal.addComponents(row_reply);
+        let row_reply = new MessageActionRow().addComponents(ap_reason);
+        reply_modal.addComponents(row_reply);
 
-            const perms = [`${config.devRole}`, `${config.devRoleTest}`];
-            let staff = guild.members.cache.get(interaction.user.id);
-            if (staff.roles.cache.hasAny(...perms)) {
-              await interaction.showModal(reply_modal);
-            } else {
-              await interaction.editReply({
-                embeds: [
-                  {
-                    title: `${emojis.alert} Permission denied`,
-                    description: `${errors.permsError}`,
-                    color: `${color.gray}`,
-                  },
-                ],
-                ephemeral: true,
-              });
-              console.error("Permission denied.");
-            }
-            break;
-          }
-          default:
-            break;
+        const perms = [`${config.devRole}`, `${config.devRoleTest}`];
+        let staff = guild.members.cache.get(interaction.user.id);
+        if (staff.roles.cache.hasAny(...perms)) {
+          await interaction.showModal(reply_modal);
+        } else {
+          await interaction.editReply({
+            embeds: [
+              {
+                title: `${emojis.alert} Permission denied`,
+                description: `${errors.permsError}`,
+                color: `${color.gray}`,
+              },
+            ],
+            ephemeral: true,
+          });
+          console.error("Permission denied.");
         }
       }
       //// Send application results in review room ////
