@@ -22,6 +22,7 @@ module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
     try {
       if (interaction.isButton() && interaction.customId === "#ap_freeze") {
+        await interaction.deferReply({ ephemeral: true });
         const ID = interaction.message.embeds[0].footer.text;
         const user = await interaction.guild.members.fetch(ID);
 
@@ -31,7 +32,7 @@ module.exports = async (client, config) => {
 
         const ap_reason = new TextInputComponent()
           .setCustomId("ap_reason")
-          .setLabel(`Direct Messaging box`.substring(0, 45))
+          .setLabel(`Freeze Reason`.substring(0, 45))
           .setMinLength(1)
           .setMaxLength(365)
           .setRequired(false)
@@ -95,17 +96,17 @@ module.exports = async (client, config) => {
           `\x1b[33m 〢`,
           `\x1b[33m ${moment(Date.now()).format("lll")}`,
           `\x1b[34m ${ap_user.user.username}`,
-          `\x1b[32m REJECTED BY ${interaction.user.username}`,
+          `\x1b[32m FROZEN BY ${interaction.user.username}`,
         );
         await ap_user.send({
           embeds: [
             new MessageEmbed()
               .setColor(color.gray)
-              .setTitle(`${emojis.freeze} Freezed`)
+              .setTitle(`${emojis.freeze} Frozen`)
               .setImage(banners.bannedBanner)
               .setDescription(
                 reason ||
-                  `You have been freezed from the recruitments application system for breaking the rules`,
+                  `You have been frozen from the recruitment system for breaking the rules`,
               ),
           ],
         });
@@ -114,19 +115,19 @@ module.exports = async (client, config) => {
         await log.send({
           embeds: [
             {
-              title: `${emojis.log} Freezing Log`,
-              description: `${emojis.snow} ${ap_user.user} have been freezed by ${interaction.user}`,
+              title: `${emojis.log} Frozen Log`,
+              description: `${emojis.snow} ${ap_user.user} have been frozen by ${interaction.user}`,
               color: color.gray,
               fields: [
                 {
-                  name: `${emojis.reason} Freezing Reason`,
+                  name: `${emojis.reason} Frozen Reason`,
                   value: reason || `No Reason Found`,
                   inline: false,
                 },
               ],
               timestamp: new Date(),
               footer: {
-                text: "Freezed in",
+                text: "Frozen in",
                 icon_url: banners.parfaitIcon,
               },
             },
@@ -173,7 +174,7 @@ module.exports = async (client, config) => {
         );
 
         /// Rename The Thread ///
-        await threadName.setName("🧤︱" + `${userName}` + " Freezed");
+        await threadName.setName("🧤︱" + `${userName}` + " Frozen");
         /// Lock the thread ///
         await wait(5000); // ** cooldown 10 seconds ** \\
         await threadName.setLocked(true);
@@ -190,8 +191,8 @@ module.exports = async (client, config) => {
         await interaction.editReply({
           embeds: [
             {
-              title: `${emojis.snow} Freeze Alert`,
-              description: `${emojis.threadMarkmid} You freezed ${user} from the recruitments application system\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived in \`\`20 Seconds\`\``,
+              title: `${emojis.snow} Frozen Alert`,
+              description: `${emojis.threadMarkmid} You've freeze ${user} from the recruitment system\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived`,
               color: color.gray,
             },
           ],

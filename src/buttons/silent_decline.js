@@ -109,7 +109,7 @@ module.exports = async (client, config) => {
               embeds: [
                 {
                   title: `${emojis.cross} Decline Alert`,
-                  description: `${emojis.threadMarkmid} You declined ${user} application silently\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived in \`\`20 Seconds\`\``,
+                  description: `${emojis.threadMarkmid} You declined ${user} application silently\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived`,
                   color: color.gray,
                 },
               ],

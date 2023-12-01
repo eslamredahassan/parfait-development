@@ -137,7 +137,7 @@ module.exports = async (client, config) => {
               embeds: [
                 {
                   title: `${emojis.check} Approvement Alert`,
-                  description: `${emojis.threadMarkmid} You Approved ${user} application silently\n${emojis.threadMark} His thread will be automatically archived in \`\`20 Seconds\`\``,
+                  description: `${emojis.threadMarkmid} You Approved ${user} application silently\n${emojis.threadMark} His thread will be automatically archived`,
                   color: color.gray,
                 },
               ],

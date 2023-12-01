@@ -73,7 +73,7 @@ module.exports = async (client, config) => {
           await log.send({
             embeds: [
               {
-                title: `${emojis.log} Accept Log`,
+                title: `${emojis.log} Promote Log`,
                 description: `${emojis.promoted} ${ap_user.user} have been promoted by ${interaction.user}`,
                 color: color.gray,
                 timestamp: new Date(),

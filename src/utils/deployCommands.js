@@ -12,7 +12,17 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
+          name: "test",
+          description: `[Dev] Launch setup menu to choose between open, close and developer modes`,
+          type: "CHAT_INPUT",
+        },
+        {
           name: "squad_sun",
+          description: `[Dev] A list of Sun members`,
+          type: "CHAT_INPUT",
+        },
+        {
+          name: "add_application",
           description: `[Dev] A list of Sun members`,
           type: "CHAT_INPUT",
         },

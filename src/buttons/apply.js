@@ -111,6 +111,7 @@ module.exports = async (client, config) => {
 
     //// Send application results in review room ////
     if (interaction.customId === "application_modal") {
+      await interaction.deferUpdate({ ephemeral: true });
       let user_code = interaction.fields.getTextInputValue("ap_usercode");
       let user_age = interaction.fields.getTextInputValue("ap_userage");
       let user_ct = interaction.fields.getTextInputValue("ap_userct");
@@ -118,7 +119,7 @@ module.exports = async (client, config) => {
       let user_why = interaction.fields.getTextInputValue("ap_userwhy");
       // Check if user_code contains any spaces
       if (/[\s~`!@#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?()\._]/g.test(user_code)) {
-        return interaction.update({
+        return interaction.editReply({
           embeds: [
             {
               title: `${emojis.cross} Invalid Smash Code`,
@@ -132,7 +133,7 @@ module.exports = async (client, config) => {
       }
       // Check if the user's age is a valid number
       if (isNaN(user_age)) {
-        return interaction.update({
+        return interaction.editReply({
           embeds: [
             {
               title: `${emojis.cross} Incorrect Age  Format`,
@@ -146,7 +147,7 @@ module.exports = async (client, config) => {
       }
       // Check if the user's age is above 16
       if (parseInt(user_age) < 14) {
-        return interaction.update({
+        return interaction.editReply({
           embeds: [
             {
               title: `${emojis.cross} Age Requirement Not Met`,
@@ -160,7 +161,7 @@ module.exports = async (client, config) => {
       }
       // Check if competitions/trainings question "yes", "yeah", "no", "nah"
       if (!["yes", "yeah", "no", "nah"].includes(user_ct.toLowerCase())) {
-        return interaction.update({
+        return interaction.editReply({
           embeds: [
             {
               title: `${emojis.cross} Invalid Answer for Competitions/Trainings Question`,
@@ -174,7 +175,7 @@ module.exports = async (client, config) => {
       }
       // Check if the answers contain abusive or obscene words
       if (filter.isProfane(user_legends) || filter.isProfane(user_why)) {
-        return interaction.update({
+        return interaction.editReply({
           embeds: [
             {
               title: `${emojis.cross} Inappropriate Content Detected`,
@@ -325,45 +326,26 @@ module.exports = async (client, config) => {
       //// Console Log Data ///
       console.log(
         `\x1b[0m`,
-        `\x1b[32m ├`,
-        `\x1b[33m Smash Code:`,
-        `\x1b[35m${user_code}`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("lll")}`,
+        `\x1b[34m ${interaction.user.username}`,
+        `\x1b[35m Sent his application`,
       ),
-        console.log(`\x1b[32m  ├`, `\x1b[33m Age:`, `\x1b[35m${user_age}`),
-        console.log(
-          `\x1b[0m`,
-          `\x1b[32m ├`,
-          `\x1b[33m Competitions/Trainings:`,
-          `\x1b[35m${user_ct}`,
-        ),
-        console.log(
-          `\x1b[0m`,
-          `\x1b[32m ├`,
-          `\x1b[33m Favorite Legends:`,
-          `\x1b[35m${user_legends}`,
-        ),
-        console.log(
-          `\x1b[0m`,
-          `\x1b[32m ├`,
-          `\x1b[33m What can you bring to SUN:`,
-          `\x1b[35m${user_why}`,
-        );
-
-      //// Add Waitlist Role ///
-      await interaction.member.roles
-        .add(config.waitRole)
-        .catch(() => console.log("Error Line 3478"));
+        //// Add Waitlist Role ///
+        await interaction.member.roles
+          .add(config.waitRole)
+          .catch(() => console.log("Error Line 3478"));
       const waitRole = interaction.guild.roles.cache.get(config.waitRole);
       console.log(
         `\x1b[0m`,
-        `\x1b[31m └`,
+        `\x1b[31m 〢`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
         `\x1b[34m Added ${waitRole.name} To`,
         `\x1b[34m ${interaction.user.username}`,
       );
 
       //// Send reply messge after applying ///
-      await interaction.update({
+      await interaction.editReply({
         embeds: [
           {
             title: `${emojis.check} Your basic application has been sent for review`,
@@ -414,7 +396,7 @@ module.exports = async (client, config) => {
             // Member already has an application, update the existing one
             console.log(
               `\x1b[0m`,
-              `\x1b[32m ├`,
+              `\x1b[32m 〢`,
               `\x1b[33m ${moment(Date.now()).format("lll")}`,
               `\x1b[32m ${interaction.user.username} Already has an application`,
               `\x1b[35m Updating...`,
@@ -436,7 +418,7 @@ module.exports = async (client, config) => {
             await existingApplication.save();
             console.log(
               `\x1b[0m`,
-              `\x1b[32m ├`,
+              `\x1b[32m 〢`,
               `\x1b[33m ${moment(Date.now()).format("lll")}`,
               `\x1b[35m Existing application has been updated`,
             );
@@ -461,7 +443,7 @@ module.exports = async (client, config) => {
             await newApplication.save();
             console.log(
               `\x1b[0m`,
-              `\x1b[32m ├`,
+              `\x1b[32m 〢`,
               `\x1b[33m ${moment(Date.now()).format("lll")}`,
               `\x1b[32m Application saved to`,
               `\x1b[35m database`,
@@ -470,7 +452,7 @@ module.exports = async (client, config) => {
         } catch (error) {
           console.error(
             `\x1b[0m`,
-            `\x1b[32m ├`,
+            `\x1b[32m 〢`,
             `\x1b[33m  Error while creating/updating application:`,
             `\x1b[35m$ ${error.message}`,
           );

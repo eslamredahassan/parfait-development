@@ -149,26 +149,26 @@ module.exports = async (client, config) => {
         `\x1b[31m 〢`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
         `\x1b[34m ${ap_user.user.username}`,
-        `\x1b[32m REJECTED BY ${interaction.user.username}`,
+        `\x1b[32m DEVLINED BY ${interaction.user.username}`,
       );
       //// Send message to log channel after rejecting member ///
       const log = interaction.guild.channels.cache.get(config.log);
       await log.send({
         embeds: [
           {
-            title: `${emojis.log} Rejection Log`,
-            description: `${emojis.cross} ${ap_user.user} have been rejected by ${interaction.user}`,
+            title: `${emojis.log} Decline Log`,
+            description: `${emojis.cross} ${ap_user.user} have been declined by ${interaction.user}`,
             color: color.gray,
             fields: [
               {
-                name: `${emojis.reason} Rejection Reason`,
+                name: `${emojis.reason} Decline Reason`,
                 value: reply || `No Reason Found`,
                 inline: false,
               },
             ],
             timestamp: new Date(),
             footer: {
-              text: "Rejected in",
+              text: "Declined in",
               icon_url: banners.parfaitIcon,
             },
           },
@@ -189,7 +189,7 @@ module.exports = async (client, config) => {
         (x) => x.name === `${"🧤︱" + userName + " Tryout"}`,
       );
       /// Rename The Thread ///
-      await threadName.setName("🧤︱" + `${userName}` + " Rejected");
+      await threadName.setName("🧤︱" + `${userName}` + " Declined");
       /// Lock the thread ///
       await wait(1000); // ** cooldown 10 seconds ** \\
       await threadName.setLocked(true);
@@ -206,8 +206,8 @@ module.exports = async (client, config) => {
       await interaction.editReply({
         embeds: [
           {
-            title: `${emojis.cross} Rejection Alert`,
-            description: `${emojis.threadMarkmid} You rejected ${user} from joining **${interaction.guild.name}**\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived in \`\`20 Seconds\`\``,
+            title: `${emojis.cross} Decline Alert`,
+            description: `${emojis.threadMarkmid} You've declined ${user} application\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived`,
             color: color.gray,
           },
         ],

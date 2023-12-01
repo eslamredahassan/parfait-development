@@ -320,7 +320,7 @@ module.exports = async (client, config) => {
           ]);
 
           let embed = new MessageEmbed(interaction.message.embeds[0])
-            .setTitle(`${emojis.alert} Accepted by ${interaction.user.tag}`)
+            .setTitle(`${emojis.alert} Approved by ${interaction.user.tag}`)
             .setColor(color.gray)
             .setImage(banners.acceptFinishbanner)
             .setThumbnail(banners.acceptIcon)
@@ -334,12 +334,12 @@ module.exports = async (client, config) => {
           await log.send({
             embeds: [
               {
-                title: `${emojis.log} Accept Log`,
-                description: `${emojis.check} ${ap_user} have been accepted by ${interaction.user}`,
+                title: `${emojis.log} Approvement Log`,
+                description: `${emojis.check} ${ap_user} have been approved by ${interaction.user}`,
                 color: color.gray,
                 timestamp: new Date(),
                 footer: {
-                  text: "Accepted in",
+                  text: "Approved in",
                   icon_url: banners.parfaitIcon,
                 },
               },
@@ -357,8 +357,8 @@ module.exports = async (client, config) => {
             .editReply({
               embeds: [
                 {
-                  title: `${emojis.check} Acceptance Alert`,
-                  description: `${emojis.threadMarkmid} You accepted ${ap_user} in **${interaction.guild.name}**\n${emojis.threadMark} His thread will be automatically archived in \`\`20 Seconds\`\``,
+                  title: `${emojis.check} Approvement Alert`,
+                  description: `${emojis.threadMarkmid} You've approved ${ap_user} application\n${emojis.threadMark} His thread will be automatically archived`,
                   color: color.gray,
                 },
               ],
