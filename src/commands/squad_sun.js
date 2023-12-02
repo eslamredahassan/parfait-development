@@ -27,7 +27,7 @@ module.exports = async (client, config) => {
         const squad = interaction.guild.roles.cache.get(config.SquadSUN);
 
         const membersWithRole = [];
-        squad.members.forEach(async (member) => {
+        for (const member of squad.members.values()) {
           const applicationData = await Application.findOne({
             userId: member.id,
           });
@@ -41,13 +41,13 @@ module.exports = async (client, config) => {
           membersWithRole.push(
             `${emoji} ${member.user} ${emojis.pinkDot} Smash Code: \`\`${userCode}\`\``,
           );
-        });
+        }
+
+        const squadSun = membersWithRole.join("\n");
 
         const embed = new MessageEmbed()
           .setTitle(``)
-          .setDescription(
-            `### ${emojis.sunL} Squad SUN\n` + membersWithRole.join("\n"),
-          )
+          .setDescription(`### ${emojis.sunL} Squad SUN\n` + squadSun)
           //.setThumbnail(Logo)
           .setColor(color.gray)
           .setImage(banners.list)
@@ -56,7 +56,7 @@ module.exports = async (client, config) => {
             iconURL: banners.parfaitIcon,
           });
 
-        interaction.editReply({ embeds: [embed], ephemeral: true });
+        await interaction.editReply({ embeds: [embed], ephemeral: true });
       } catch (error) {
         console.log(
           `\x1b[0m`,
