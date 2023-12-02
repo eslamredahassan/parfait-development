@@ -19,210 +19,168 @@ module.exports = async (client, config) => {
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isButton() && interaction.customId === "#setup_close") {
-      const Messages = [
-        `${responses.lazy}`,
-        `${responses.know}`,
-        `${responses.busy}`,
-        `${responses.wait}`,
-      ];
-      const Response = Messages[Math.floor(Math.random() * Messages.length)];
+      try {
+        await interaction.deferUpdate();
+        const Messages = [
+          `${responses.lazy}`,
+          `${responses.know}`,
+          `${responses.busy}`,
+          `${responses.wait}`,
+        ];
+        const Response = Messages[Math.floor(Math.random() * Messages.length)];
 
-      if (cooldown.has(interaction.user.id)) {
-        interaction.reply({
-          embeds: [
-            {
-              title: `${emojis.cooldown} Cooldown`,
-              description:
-                `${emojis.whiteDot} Hi  <@${interaction.user.id}>` +
-                ` ${Response}`,
-              color: color.gray,
-            },
-          ],
-          //this is the important part
-          ephemeral: true,
-        });
-      } else {
-        let applyChannel = interaction.guild.channels.cache.get(
-          config.applyChannel,
-        );
-        if (!applyChannel) return;
-
-        let buttons = new MessageActionRow().addComponents([
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#about-menu")
-            .setLabel("About us")
-            .setEmoji(emojis.aboutSun),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#faq")
-            .setLabel("FAQ")
-            .setEmoji(emojis.faq),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(true)
-            .setCustomId("#requirements")
-            .setLabel("Sun Application")
-            .setEmoji(emojis.requirements),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#open")
-            .setLabel(" ")
-            .setEmoji(emojis.on),
-        ]);
-
-        const perms = [`${config.devRole}`, `${config.devRoleTest}`];
-        let staff = guild.members.cache.get(interaction.user.id);
-        if (staff.roles.cache.hasAny(...perms)) {
-          await applyChannel.send({
-            embeds: [
-              new MessageEmbed()
-                .setColor(color.gray)
-                .setTitle(
-                  `${emojis.app} ${interaction.guild.name}\n${emojis.threadMark}Recruitments Application System`,
-                )
-                .setDescription(interface.MainUImessage)
-                .setThumbnail(Logo)
-                .setImage(banners.closeBanner)
-                .addFields(
-                  {
-                    name: `${emojis.r_rank} Required Rank`,
-                    value: fieldsText.rank,
-                    inline: true,
-                  },
-                  {
-                    name: `${emojis.r_level} Required Level`,
-                    value: fieldsText.level,
-                    inline: true,
-                  },
-                ),
-            ],
-            components: [buttons],
-          });
-
-          await interaction.update({
+        if (cooldown.has(interaction.user.id)) {
+          interaction.editReply({
             embeds: [
               {
-                title: `${emojis.check} Closed Interface`,
-                description: `${emojis.threadMark} Closed Interface has been set up in ${applyChannel}`,
-                //thumbnail: { url: banners.maintenanceIcon },
+                title: `${emojis.cooldown} Cooldown`,
+                description:
+                  `${emojis.whiteDot} Hi  <@${interaction.user.id}>` +
+                  ` ${Response}`,
                 color: color.gray,
               },
             ],
             //this is the important part
             ephemeral: true,
-            components: [],
           });
         } else {
-          return await interaction
-            .reply({
+          let applyChannel = interaction.guild.channels.cache.get(
+            config.applyChannel,
+          );
+          if (!applyChannel) return;
+
+          let buttons = new MessageActionRow().addComponents([
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#about-menu")
+              .setLabel("About us")
+              .setEmoji(emojis.aboutSun),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#faq")
+              .setLabel("FAQ")
+              .setEmoji(emojis.faq),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(true)
+              .setCustomId("#requirements")
+              .setLabel("Sun Application")
+              .setEmoji(emojis.requirements),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#open")
+              .setLabel(" ")
+              .setEmoji(emojis.on),
+          ]);
+
+          const perms = [`${config.devRole}`, `${config.devRoleTest}`];
+          let staff = guild.members.cache.get(interaction.user.id);
+          if (staff.roles.cache.hasAny(...perms)) {
+            await applyChannel.send({
+              embeds: [
+                new MessageEmbed()
+                  .setColor(color.gray)
+                  .setTitle(
+                    `${emojis.app} ${interaction.guild.name}\n${emojis.threadMark}Recruitments Application System`,
+                  )
+                  .setDescription(interface.MainUImessage)
+                  .setThumbnail(Logo)
+                  .setImage(banners.closeBanner)
+                  .addFields(
+                    {
+                      name: `${emojis.r_rank} Required Rank`,
+                      value: fieldsText.rank,
+                      inline: true,
+                    },
+                    {
+                      name: `${emojis.r_level} Required Level`,
+                      value: fieldsText.level,
+                      inline: true,
+                    },
+                  ),
+              ],
+              components: [buttons],
+            });
+
+            await interaction.editReply({
               embeds: [
                 {
-                  title: `${emojis.alert} Permission denied`,
-                  description: errors.permsError,
+                  title: `${emojis.check} Closed Interface`,
+                  description: `${emojis.threadMark} Closed Interface has been set up in ${applyChannel}`,
+                  //thumbnail: { url: banners.maintenanceIcon },
                   color: color.gray,
                 },
               ],
               //this is the important part
               ephemeral: true,
-            })
-            .catch((e) => {});
+              components: [],
+            });
+          } else {
+            return await interaction
+              .reply({
+                embeds: [
+                  {
+                    title: `${emojis.alert} Permission denied`,
+                    description: errors.permsError,
+                    color: color.gray,
+                  },
+                ],
+                //this is the important part
+                ephemeral: true,
+              })
+              .catch((e) => {});
+          }
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username}`,
+            `\x1b[35m Setup`,
+            `\x1b[31m CLOSED MODE`,
+          );
         }
-        console.log(
-          `\x1b[31m  〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[34m ${interaction.user.username}`,
-          `\x1b[35m Setup`,
-          `\x1b[31mCLOSED MODE`,
+      } catch (error) {
+        console.error(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error in setup close mode:`,
+          `\x1b[35m ${error.message}`,
         );
+        await interaction.editReply({
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.warning} Error`)
+              .setDescription(
+                `${emojis.threadMark} Something wrong happened while setup close mode.`,
+              ),
+          ],
+          ephemeral: true,
+          components: [],
+        });
       }
     } else if (interaction.customId === "#close") {
-      const Messages = [
-        `${responses.lazy}`,
-        `${responses.know}`,
-        `${responses.busy}`,
-        `${responses.wait}`,
-      ];
-      const Response = Messages[Math.floor(Math.random() * Messages.length)];
+      try {
+        const Messages = [
+          `${responses.lazy}`,
+          `${responses.know}`,
+          `${responses.busy}`,
+          `${responses.wait}`,
+        ];
+        const Response = Messages[Math.floor(Math.random() * Messages.length)];
 
-      if (cooldown.has(interaction.user.id)) {
-        interaction.reply({
-          embeds: [
-            {
-              title: `${emojis.cooldown} Cooldown`,
-              description:
-                `${emojis.whiteDot} Hi  <@${interaction.user.id}>` +
-                ` ${Response}`,
-              color: color.gray,
-            },
-          ],
-          //this is the important part
-          ephemeral: true,
-        });
-      } else {
-        let closeButtons = new MessageActionRow().addComponents([
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#about-menu")
-            .setLabel("About us")
-            .setEmoji(emojis.aboutSun),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#faq")
-            .setLabel("FAQ")
-            .setEmoji(emojis.faq),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(true)
-            .setCustomId("#stop")
-            .setLabel("Sun Application")
-            .setEmoji(emojis.requirements),
-          new MessageButton()
-            .setStyle(2)
-            .setDisabled(false)
-            .setCustomId("#open")
-            .setLabel(" ")
-            .setEmoji(emojis.on),
-        ]);
-
-        const perms = [`${config.devRole}`, `${config.devRoleTest}`];
-        let staff = guild.members.cache.get(interaction.user.id);
-        if (staff.roles.cache.hasAny(...perms)) {
-          await interaction.update({
-            embeds: [
-              new MessageEmbed()
-                .setColor(color.gray)
-                .setTitle(
-                  `${emojis.app} ${interaction.guild.name}\n${emojis.threadMark}Recruitments Application System`,
-                )
-                .setDescription(interface.MainUImessage)
-                .setThumbnail(Logo)
-                .setImage(banners.closeBanner)
-                .addFields(
-                  {
-                    name: `${emojis.r_rank} Required Rank`,
-                    value: fieldsText.rank,
-                    inline: true,
-                  },
-                  {
-                    name: `${emojis.r_level} Required Level`,
-                    value: fieldsText.level,
-                    inline: true,
-                  },
-                ),
-            ],
-            components: [closeButtons],
-          });
-          await interaction.followUp({
+        if (cooldown.has(interaction.user.id)) {
+          interaction.reply({
             embeds: [
               {
-                title: `${emojis.lock} Recruitment Closed`,
-                description: `Alright ${interaction.user} I'll not receive any recruitment applications`,
+                title: `${emojis.cooldown} Cooldown`,
+                description:
+                  `${emojis.whiteDot} Hi  <@${interaction.user.id}>` +
+                  ` ${Response}`,
                 color: color.gray,
               },
             ],
@@ -230,32 +188,121 @@ module.exports = async (client, config) => {
             ephemeral: true,
           });
         } else {
-          return await interaction
-            .reply({
+          let closeButtons = new MessageActionRow().addComponents([
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#about-menu")
+              .setLabel("About us")
+              .setEmoji(emojis.aboutSun),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#faq")
+              .setLabel("FAQ")
+              .setEmoji(emojis.faq),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(true)
+              .setCustomId("#stop")
+              .setLabel("Sun Application")
+              .setEmoji(emojis.requirements),
+            new MessageButton()
+              .setStyle(2)
+              .setDisabled(false)
+              .setCustomId("#open")
+              .setLabel(" ")
+              .setEmoji(emojis.on),
+          ]);
+
+          const perms = [`${config.devRole}`, `${config.devRoleTest}`];
+          let staff = guild.members.cache.get(interaction.user.id);
+          if (staff.roles.cache.hasAny(...perms)) {
+            await interaction.update({
+              embeds: [
+                new MessageEmbed()
+                  .setColor(color.gray)
+                  .setTitle(
+                    `${emojis.app} ${interaction.guild.name}\n${emojis.threadMark}Recruitments Application System`,
+                  )
+                  .setDescription(interface.MainUImessage)
+                  .setThumbnail(Logo)
+                  .setImage(banners.closeBanner)
+                  .addFields(
+                    {
+                      name: `${emojis.r_rank} Required Rank`,
+                      value: fieldsText.rank,
+                      inline: true,
+                    },
+                    {
+                      name: `${emojis.r_level} Required Level`,
+                      value: fieldsText.level,
+                      inline: true,
+                    },
+                  ),
+              ],
+              components: [closeButtons],
+            });
+            await interaction.followUp({
               embeds: [
                 {
-                  title: `${emojis.alert} Permission denied`,
-                  description: errors.permsError,
+                  title: `${emojis.lock} Recruitment Closed`,
+                  description: `Alright ${interaction.user} I'll not receive any recruitment applications`,
                   color: color.gray,
                 },
               ],
               //this is the important part
               ephemeral: true,
-            })
-            .catch((e) => {});
+            });
+          } else {
+            return await interaction
+              .reply({
+                embeds: [
+                  {
+                    title: `${emojis.alert} Permission denied`,
+                    description: errors.permsError,
+                    color: color.gray,
+                  },
+                ],
+                //this is the important part
+                ephemeral: true,
+              })
+              .catch((e) => {});
+          }
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username}`,
+            `\x1b[35m Switched To`,
+            `\x1b[31m CLOSED MODE`,
+          );
+          cooldown.add(interaction.user.id);
+          setTimeout(() => {
+            // Removes the user from the set after a minute
+            cooldown.delete(interaction.user.id);
+          }, 60000);
         }
-        console.log(
-          `\x1b[31m  〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[34m ${interaction.user.username}`,
-          `\x1b[35m Switched To`,
-          `\x1b[32m CLOSED MODE`,
+      } catch (error) {
+        console.error(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error happened while switching to close mode:`,
+          `\x1b[35m ${error.message}`,
         );
-        cooldown.add(interaction.user.id);
-        setTimeout(() => {
-          // Removes the user from the set after a minute
-          cooldown.delete(interaction.user.id);
-        }, 60000);
+        await interaction.followUp({
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.warning} Error`)
+              .setDescription(
+                `${emojis.threadMark} Something wrong happened while switching to close mode.`,
+              ),
+          ],
+          ephemeral: true,
+          components: [],
+        });
       }
     }
   });
