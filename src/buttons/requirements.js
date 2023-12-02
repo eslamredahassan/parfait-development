@@ -81,14 +81,6 @@ module.exports = async (client, config) => {
             (x) => x.name === `${"🧤︱" + userName + " Tryout"}`,
           );
 
-          console.log(
-            `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[35m ${interaction.user.username}`,
-            `\x1b[36m TRYING TO`,
-            `\x1b[1m \x1b[32mApply Again `,
-          );
           await interaction.editReply({
             embeds: [
               {
@@ -177,9 +169,9 @@ module.exports = async (client, config) => {
           });
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${interaction.user.username} READ`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username} READ`,
             `\x1b[35m the requirements`,
           );
         }

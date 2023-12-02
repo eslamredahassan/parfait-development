@@ -60,8 +60,8 @@ module.exports = async (client, config) => {
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${ap_user.user.username}`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${ap_user.user.username}`,
             `\x1b[32m Approved by ${interaction.user.username}`,
           );
 
@@ -89,8 +89,8 @@ module.exports = async (client, config) => {
             .catch(() => console.log("Error Line 2298"));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
+            `\x1b[31m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
             `\x1b[35m Sun Roles`,
             `\x1b[32m ADDED`,
           );
@@ -100,9 +100,9 @@ module.exports = async (client, config) => {
             .catch(() => console.log("Error Line 2312"));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[35m Wannabe Role`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Wannabe Role`,
             `\x1b[32m REMOVED`,
           );
 
@@ -161,9 +161,9 @@ module.exports = async (client, config) => {
             .catch((error) => console.log(error.message));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
+            `\x1b[33m 〢`,
             `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[33m Permission denied`,
+            `\x1b[31m Permission denied`,
           );
         }
       } catch (error) {

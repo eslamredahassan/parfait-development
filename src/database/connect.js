@@ -35,11 +35,21 @@ const databaseConnection = async () => {
       if (retryCount < maxRetries) {
         retryCount++;
         console.log(
-          `Retrying connection (Attempt ${retryCount}/${maxRetries})...`,
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Retrying connection`,
+          `\x1b[32m (Attempt ${retryCount}/${maxRetries})`,
         );
         setTimeout(connection, retryInterval);
       } else {
-        console.log(`Max retries reached. Unable to connect to the database.`);
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Max retries reached`,
+          `\x1b[32m Unable to connect to the database`,
+        );
         process.exit(1); // You can handle this differently based on your application's needs
       }
     }

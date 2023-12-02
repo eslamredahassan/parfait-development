@@ -52,8 +52,8 @@ module.exports = async (client, config) => {
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${ap_user.user.username}`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${ap_user.user.username}`,
             `\x1b[32m PROMOTED BY ${interaction.user.username}`,
           );
           //// Send message to accepted member ///
@@ -93,8 +93,8 @@ module.exports = async (client, config) => {
               .catch(() => console.log("Error Line 2414"));
             console.log(
               `\x1b[0m`,
-              `\x1b[33m 🛠`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
+              `\x1b[31m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
               `\x1b[33m SunTest role REMOVED`,
             );
             await ap_user.roles
@@ -102,8 +102,8 @@ module.exports = async (client, config) => {
               .catch(() => console.log("Error Line 2420"));
             console.log(
               `\x1b[0m`,
-              `\x1b[33m 🛠`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
+              `\x1b[31m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
               `\x1b[33m SquadSUN role ADDED`,
             );
 
@@ -128,9 +128,10 @@ module.exports = async (client, config) => {
               .catch(() => console.log("Error Line 79"));
           } catch (err) {
             console.log(
-              `\x1b[31m  〢`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[34m ${ap_user.user.username} ROLES`,
+              `\x1b[0m`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m ${ap_user.user.username} ROLES`,
               `\x1b[35m Unfounded!`,
             );
             throw err;
@@ -151,9 +152,9 @@ module.exports = async (client, config) => {
             .catch((error) => console.log(error.message));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[33m Permission denied`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Permission denied`,
           );
         }
       } catch (error) {

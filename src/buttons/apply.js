@@ -26,9 +26,9 @@ module.exports = async (client, config) => {
       try {
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[34m ${interaction.user.username} USED`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m ${interaction.user.username} USED`,
           `\x1b[35m Apply Button`,
         );
         //// Modal application code ///
@@ -218,9 +218,9 @@ module.exports = async (client, config) => {
 
       console.log(
         `\x1b[0m`,
-        `\x1b[31m 〢`,
-        `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[32m Created thread`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Created thread`,
         `\x1b[35m ${thread.name}`,
       );
 
@@ -330,9 +330,9 @@ module.exports = async (client, config) => {
       console.log(
         `\x1b[0m`,
         `\x1b[33m 〢`,
-        `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m ${interaction.user.username}`,
-        `\x1b[35m Sent his application`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m ${interaction.user.username}`,
+        `\x1b[35m applyed`,
       ),
         //// Add Waitlist Role ///
         await interaction.member.roles
@@ -341,10 +341,10 @@ module.exports = async (client, config) => {
       const waitRole = interaction.guild.roles.cache.get(config.waitRole);
       console.log(
         `\x1b[0m`,
-        `\x1b[31m 〢`,
-        `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m Added ${waitRole.name} To`,
-        `\x1b[34m ${interaction.user.username}`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Added ${waitRole.name} To`,
+        `\x1b[35m ${interaction.user.username}`,
       );
 
       //// Send reply messge after applying ///
@@ -399,10 +399,10 @@ module.exports = async (client, config) => {
             // Member already has an application, update the existing one
             console.log(
               `\x1b[0m`,
-              `\x1b[32m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[32m ${interaction.user.username} Already has an application`,
-              `\x1b[35m Updating...`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m ${interaction.user.username} Already has an application`,
+              `\x1b[35m UPDATING`,
             );
 
             existingApplication.username = interaction.user.username;
@@ -421,9 +421,10 @@ module.exports = async (client, config) => {
             await existingApplication.save();
             console.log(
               `\x1b[0m`,
-              `\x1b[32m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[35m Existing application has been updated`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m ${interaction.user.username}`,
+              `\x1b[35m application has been updated`,
             );
           } else {
             // No existing application found, create a new one
@@ -446,17 +447,17 @@ module.exports = async (client, config) => {
             await newApplication.save();
             console.log(
               `\x1b[0m`,
-              `\x1b[32m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[32m Application saved to`,
-              `\x1b[35m database`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m Application saved to database`,
             );
           }
         } catch (error) {
           console.error(
             `\x1b[0m`,
-            `\x1b[32m 〢`,
-            `\x1b[33m  Error while creating/updating application:`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error while creating/updating application:`,
             `\x1b[35m$ ${error.message}`,
           );
           // Handle the error or log as required
@@ -473,8 +474,6 @@ module.exports = async (client, config) => {
           await Counter.create({ count: 1 });
         }
       }
-
-      ////----------------------------////
       ////----------------------------////
     }
   });

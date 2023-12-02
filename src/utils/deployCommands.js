@@ -225,6 +225,22 @@ module.exports = async (client, config) => {
           ],
         },
         {
+          name: "applications",
+          description: `[Dev] Manage recruitment applications`,
+          required: true,
+          options: [
+            {
+              name: "search",
+              description:
+                "Search for recruitment application by username, user id, smash code, or application id",
+              type: 3, // STRING
+              required: true,
+              min_length: 2,
+              max_length: 1000,
+            },
+          ],
+        },
+        {
           name: "reminder",
           description: `[Dev] Set a reminder`,
           options: [

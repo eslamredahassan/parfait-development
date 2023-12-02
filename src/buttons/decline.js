@@ -60,9 +60,9 @@ module.exports = async (client, config) => {
         });
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 🛠`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[33m Permission denied`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Permission denied`,
         );
       }
     }
@@ -146,10 +146,10 @@ module.exports = async (client, config) => {
       /// Console Action ///
       console.log(
         `\x1b[0m`,
-        `\x1b[31m 〢`,
-        `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m ${ap_user.user.username}`,
-        `\x1b[32m DEVLINED BY ${interaction.user.username}`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m ${ap_user.user.username}`,
+        `\x1b[32m DECLINED BY ${interaction.user.username}`,
       );
       //// Send message to log channel after rejecting member ///
       const log = interaction.guild.channels.cache.get(config.log);

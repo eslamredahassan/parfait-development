@@ -5,9 +5,9 @@ const fieldsText = require("../assest/fieldsText.js");
 
 module.exports = async (client) => {
   client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isCommand()) return;
-    if (interaction.commandName === "ask") {
+    if (!interaction.isCommand() && interaction.commandName === "ask") {
       await interaction.deferReply({ ephemeral: true });
+
       const openai = new OpenAI({ apiKey: process.env.OpenAI_Key });
       const question = interaction.options.getString("question");
 

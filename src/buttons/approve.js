@@ -61,8 +61,8 @@ module.exports = async (client, config) => {
             console.log(
               `\x1b[0m`,
               `\x1b[33m 〢`,
-              `\x1b[30m ${moment(Date.now()).format("lll")}`,
-              `\x1b[34m applyChannel channel not found.`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m applyChannel channel not found.`,
             );
             await interaction.editReply({
               content: "Oops! There was an error processing your request.",
@@ -75,8 +75,8 @@ module.exports = async (client, config) => {
             console.log(
               `\x1b[0m`,
               `\x1b[33m 〢`,
-              `\x1b[30m ${moment(Date.now()).format("lll")}`,
-              `\x1b[34m log channel not found.`,
+              `\x1b[33m ${moment(Date.now()).format("lll")}`,
+              `\x1b[31m log channel not found.`,
             );
             await interaction.editReply({
               content: "Oops! There was an error processing your request.",
@@ -88,8 +88,8 @@ module.exports = async (client, config) => {
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
-            `\x1b[30m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${ap_user.user.username}`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${ap_user.user.username}`,
             `\x1b[32m APPROVED BY ${interaction.user.username}`,
           );
           //// Add roles to the user
@@ -102,9 +102,10 @@ module.exports = async (client, config) => {
           const SquadSUN = interaction.guild.roles.cache.get(config.SquadSUN);
           console.log(
             `\x1b[0m`,
-            `\x1b[33m ├`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[32m ${SunTest.name} and ${SquadSUN.name} Roles ADDED`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${SunTest.name} and ${SquadSUN.name} Roles`,
+            `\x1b[33m ADDED TO ${ap_user.user.username}`,
           );
           // Remove roles from the user
           await ap_user.roles
@@ -116,8 +117,8 @@ module.exports = async (client, config) => {
           // Send the action to the console log
           console.log(
             `\x1b[0m`,
-            `\x1b[36m ├`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
+            `\x1b[31m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
             `\x1b[33m ${waitRole.name} REMOVED`,
           );
           // Send a direct message to the user
@@ -292,9 +293,9 @@ module.exports = async (client, config) => {
           // Send the action to the console log
           console.log(
             `\x1b[0m`,
-            `\x1b[36m └`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[33m ${threadName.name}`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${threadName.name}`,
             `\x1b[33m CLOSED`,
           );
 
@@ -389,9 +390,9 @@ module.exports = async (client, config) => {
             );
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[30m ${moment(Date.now()).format("lll")}`,
-            `\x1b[33m Permission denied`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Permission denied`,
           );
         }
       } catch (error) {

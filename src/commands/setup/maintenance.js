@@ -20,40 +20,37 @@ module.exports = async (client, config) => {
   let Logo = guild.iconURL({ dynamic: true });
 
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.isButton()) {
-      switch (interaction.customId) {
-        case "#setup_maintenance":
-          {
-            //// Modal application code ///
-            let maintenance_modal = new Modal()
-              .setTitle(`🧪 Developer Mode`)
-              .setCustomId(`maintenance_modal`);
+    if (
+      interaction.isButton() &&
+      interaction.customId === "#setup_maintenance"
+    ) {
+      //// Modal application code ///
+      let maintenance_modal = new Modal()
+        .setTitle(`🧪 Developer Mode`)
+        .setCustomId(`maintenance_modal`);
 
-            const password = new TextInputComponent()
-              .setCustomId("dev_password")
-              .setLabel(`Enter The Password`.substring(0, 45))
-              .setMinLength(1)
-              .setMaxLength(17)
-              .setRequired(true)
-              .setPlaceholder(`Enter the password here`)
-              .setStyle(1);
+      const password = new TextInputComponent()
+        .setCustomId("dev_password")
+        .setLabel(`Enter The Password`.substring(0, 45))
+        .setMinLength(1)
+        .setMaxLength(17)
+        .setRequired(true)
+        .setPlaceholder(`Enter the password here`)
+        .setStyle(1);
 
-            const note = new TextInputComponent()
-              .setCustomId("dev_note")
-              .setLabel(`Developer Note`.substring(0, 45))
-              .setMinLength(1)
-              .setMaxLength(365)
-              .setRequired(false)
-              .setPlaceholder(`Enter your note here`)
-              .setStyle(2);
+      const note = new TextInputComponent()
+        .setCustomId("dev_note")
+        .setLabel(`Developer Note`.substring(0, 45))
+        .setMinLength(1)
+        .setMaxLength(365)
+        .setRequired(false)
+        .setPlaceholder(`Enter your note here`)
+        .setStyle(2);
 
-            let row_password = new MessageActionRow().addComponents(password);
-            let row_note = new MessageActionRow().addComponents(note);
-            maintenance_modal.addComponents(row_password, row_note);
-            await interaction.showModal(maintenance_modal);
-          }
-          break;
-      }
+      let row_password = new MessageActionRow().addComponents(password);
+      let row_note = new MessageActionRow().addComponents(note);
+      maintenance_modal.addComponents(row_password, row_note);
+      await interaction.showModal(maintenance_modal);
     }
     const answers = { [0]: "Es17lam12Re19da95" };
     function getRandomInt(max) {

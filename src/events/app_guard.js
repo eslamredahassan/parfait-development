@@ -130,9 +130,9 @@ module.exports = async (client, config) => {
         `\x1b[0m`,
         `\x1b[31m 🛠`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m Error:`,
+        `\x1b[34m Error in app guard:`,
         `\x1b[31m ${error.message}`,
       );
     }
-  }, 10 * 1000); // Check every 5 seconds
+  }, 25 * 1000); // Check every 5 seconds
 };

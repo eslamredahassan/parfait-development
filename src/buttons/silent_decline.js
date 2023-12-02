@@ -65,9 +65,9 @@ module.exports = async (client, config) => {
             .catch(() => console.log("Error Line 77"));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[35m Sun wannabe role`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Sun wannabe role`,
             `\x1b[32m REMOVED`,
           );
           //// Get channel id from the server and find the thread name ///
@@ -93,9 +93,9 @@ module.exports = async (client, config) => {
           /// Console Action ///
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${ap_user.user.username}`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${ap_user.user.username}`,
             `\x1b[32m Declined by ${interaction.user.username}`,
           );
           const applicationStatus = await Application.findOneAndUpdate({
@@ -133,9 +133,9 @@ module.exports = async (client, config) => {
             .catch(() => console.log("Error Line 2713"));
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m  ${moment(Date.now()).format("lll")}`,
-            `\x1b[33m Permission denied`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Permission denied`,
           );
         }
       } catch (error) {
