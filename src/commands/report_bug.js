@@ -20,9 +20,9 @@ module.exports = async (client, config) => {
     if (interaction.isCommand() && interaction.commandName === "report_bug") {
       console.log(
         `\x1b[0m`,
-        `\x1b[31m 〢`,
+        `\x1b[33m 〢`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m ${interaction.user.username} USED`,
+        `\x1b[31m ${interaction.user.username} USED`,
         `\x1b[35m Report Bug Command`,
       );
       //// Modal application code ///

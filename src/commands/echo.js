@@ -24,27 +24,37 @@ module.exports = async (client, config) => {
       let staff = guild.members.cache.get(interaction.user.id);
       if (staff.roles.cache.hasAny(...perms)) {
         try {
+          await interaction.deferReply({ ephemeral: true });
           // Send Echo Message To Mentioned Room
           await echoChannel.send(echoMessage);
-          await interaction.reply({
+          await interaction.editReply({
             embeds: [
               {
                 title: `${emojis.check} Echo Message Sent`,
-                description: `Okay ${interaction.user} I sent your message in ${echoChannel}`,
+                description: `${emojis.threadMark} Your message has been sent to ${echoChannel}`,
                 color: color.gray,
-                fields: [
-                  {
-                    name: `Your message`,
-                    value: `${echoMessage}`,
-                    inline: false,
-                  },
-                ],
               },
             ],
             ephemeral: true,
           });
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username}`,
+            `\x1b[32m Sent echo ${echoMessage}`,
+            `\x1b[34m in ${echoChannel.name}`,
+          );
         } catch (error) {
-          await interaction.reply({
+          console.error(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Failed to send echo`,
+            `\x1b[32m ${echoMessage}`,
+            `\x1b[34m in ${echoChannel.name}`,
+          );
+          await interaction.editReply({
             embeds: [
               {
                 title: `${emojis.alert} Oops!`,
@@ -57,7 +67,7 @@ module.exports = async (client, config) => {
           });
         }
       } else {
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [
             {
               title: `${emojis.alert} Permission denied`,
@@ -70,8 +80,8 @@ module.exports = async (client, config) => {
         });
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 🛠`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
           `\x1b[31m Permission denied`,
         );
       }

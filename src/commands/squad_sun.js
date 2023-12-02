@@ -10,7 +10,6 @@ const Application = require("../../src/database/models/application");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
-  let Logo = guild.iconURL({ dynamic: true });
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "squad_sun") {
@@ -19,19 +18,16 @@ module.exports = async (client, config) => {
       try {
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[34m ${interaction.user.username}`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m ${interaction.user.username}`,
+          `\x1b[34m USED`,
           `\x1b[35m Squad Sun`,
         );
         const squad = interaction.guild.roles.cache.get(config.SquadSUN);
 
-        if (!squad) {
-          console.log;
-          return interaction.reply("The specified role was not found.");
-        }
-
-        const membersWithRole = squad.members.map(async (member) => {
+        const membersWithRole = [];
+        squad.members.forEach(async (member) => {
           const applicationData = await Application.findOne({
             userId: member.id,
           });
@@ -42,14 +38,15 @@ module.exports = async (client, config) => {
               ? emojis.threadMark
               : emojis.threadMarkmid;
 
-          return `${emoji} ${member.user} ${emojis.pinkDot} Smash Code: \`\`${userCode}\`\``;
+          membersWithRole.push(
+            `${emoji} ${member.user} ${emojis.pinkDot} Smash Code: \`\`${userCode}\`\``,
+          );
         });
 
         const embed = new MessageEmbed()
           .setTitle(``)
           .setDescription(
-            `### ${emojis.sunL} Squad SUN\n` +
-              (await Promise.all(membersWithRole)).join("\n"),
+            `### ${emojis.sunL} Squad SUN\n` + membersWithRole.join("\n"),
           )
           //.setThumbnail(Logo)
           .setColor(color.gray)
@@ -61,10 +58,24 @@ module.exports = async (client, config) => {
 
         interaction.editReply({ embeds: [embed], ephemeral: true });
       } catch (error) {
-        console.error(error.message);
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m An Error Occurred in Squad Sun Command:`,
+          `\x1b[35m ${error.message}`,
+        );
         return interaction.editReply({
-          content: `There was an error processing your request\nError: \`\`${error.message}\`\``,
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.warning} Error`)
+              .setDescription(
+                `${emojis.cross} Something wrong happened while processing your request.`,
+              ),
+          ],
           ephemeral: true,
+          components: [],
         });
       }
     }
