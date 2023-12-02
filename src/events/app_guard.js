@@ -19,12 +19,13 @@ module.exports = async (client, config) => {
         const message = await channel.messages.fetch(application.application);
 
         if (!message) {
+          // The message has already been deleted
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m Message not found for application ID:`,
-            `\x1b[31m ${application._id}`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Application not found for application ID:`,
+            `\x1b[34m ${application._id}`,
           );
           continue;
         }
@@ -35,11 +36,11 @@ module.exports = async (client, config) => {
           // The application has already been processed
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m Application with ID:`,
-            `\x1b[31m ${application._id}`,
-            `\x1b[34m has already been processed.`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Application with ID:`,
+            `\x1b[34m ${application._id}`,
+            `\x1b[35m has already been processed.`,
           );
           continue;
         }
@@ -67,7 +68,13 @@ module.exports = async (client, config) => {
               try {
                 await temporaryRole.save();
               } catch (error) {
-                console.error("Error:", error.message);
+                console.log(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m An error occurred while saving the temporary role:`,
+                  `\x1b[34m ${error.message}`,
+                );
               }
 
               let embed = new MessageEmbed(message.embeds[0])
@@ -88,7 +95,13 @@ module.exports = async (client, config) => {
                 config.applyChannel,
               );
               if (!applyChannel) {
-                console.log("Apply Channel not found");
+                console.log(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Apply Channel`,
+                  `\x1b[34m NOT FOUND`,
+                );
                 continue; // Skip the rest of the loop iteration
               }
               const thread = await applyChannel.threads.fetch(
@@ -108,30 +121,30 @@ module.exports = async (client, config) => {
               await Application.findByIdAndDelete(application._id);
               console.log(
                 `\x1b[0m`,
-                `\x1b[31m 🛠`,
-                `\x1b[33m ${moment(Date.now()).format("lll")}`,
-                `\x1b[34m ${application.username}'s`,
-                `\x1b[31m Application has been canceled`,
+                `\x1b[33m 〢`,
+                `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                `\x1b[31m ${application.username}'s`,
+                `\x1b[34m Application has been canceled`,
               );
             }
           }
         } catch (error) {
           console.error(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m Error:`,
-            `\x1b[31m ${error.message}`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error:`,
+            `\x1b[34m ${error.message}`,
           );
         }
       }
     } catch (error) {
       console.error(
         `\x1b[0m`,
-        `\x1b[31m 🛠`,
-        `\x1b[33m ${moment(Date.now()).format("lll")}`,
-        `\x1b[34m Error in app guard:`,
-        `\x1b[31m ${error.message}`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error in app guard:`,
+        `\x1b[34m ${error.message}`,
       );
     }
   }, 25 * 1000); // Check every 5 seconds

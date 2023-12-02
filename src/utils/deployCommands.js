@@ -22,11 +22,6 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
-          name: "add_application",
-          description: `[Dev] A list of Sun members`,
-          type: "CHAT_INPUT",
-        },
-        {
           name: "about",
           description: `[Dev] Learn more about Parfait bot`,
           type: "CHAT_INPUT",
@@ -59,11 +54,6 @@ module.exports = async (client, config) => {
         {
           name: "duration",
           description: `[Dev] Check you frozen time left`,
-          type: "CHAT_INPUT",
-        },
-        {
-          name: "dev_test",
-          description: `[Dev] Test`,
           type: "CHAT_INPUT",
         },
         {
@@ -144,13 +134,13 @@ module.exports = async (client, config) => {
           ],
         },
         {
-          name: "edit_cooldown",
-          description: `[Dev] edit cooldown of member that already has a cooldown`,
+          name: "change_cooldown",
+          description: `[Dev] change the cooldown period of member that already has a cooldown`,
           options: [
             {
               name: "member",
               description:
-                "Mention the member you want to edit his cooldown period",
+                "Mention the member you want to change his cooldown period",
               type: 6, // MEMBER
               required: true,
             },
@@ -189,6 +179,14 @@ module.exports = async (client, config) => {
               required: true,
               min_length: 1,
               max_length: 3,
+            },
+            {
+              name: "reason",
+              description: "Type your unfreeze reason",
+              type: 3, // STRING
+              required: true,
+              min_length: 2,
+              max_length: 1000,
             },
           ],
         },
@@ -241,23 +239,65 @@ module.exports = async (client, config) => {
           ],
         },
         {
-          name: "reminder",
-          description: `[Dev] Set a reminder`,
+          name: "add_reminder",
+          description: `[Dev] Add a reminder`,
           options: [
             {
-              name: "message",
-              description: "The reminder message",
+              name: "text",
+              description: "The reminder text",
               type: 3, // STRING
               required: true,
               min_length: 2,
               max_length: 1000,
             },
             {
-              name: "duration",
-              description:
-                "The duration of the reminder (e.g. 10s, 5m, 2h, 1d, 1mo)",
+              name: "time",
+              description: "The duration of the reminder (in numbers only)",
               type: 3, // STRING
               required: true,
+            },
+            {
+              name: "type",
+              description: "Select the duration type",
+              required: true,
+              type: 3, // STRING
+              choices: [
+                {
+                  name: "minutes",
+                  value: "minutes",
+                  description: "In minutes",
+                },
+                {
+                  name: "hours",
+                  value: "hours",
+                  description: "In hours",
+                },
+                {
+                  name: "days",
+                  value: "days",
+                  description: "In days",
+                },
+                {
+                  name: "months",
+                  value: "months",
+                  description: "In months",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "remove_reminder",
+          description: `[Dev] Delete reminders by reminder text`,
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "text",
+              description: "Type the reminder text you want to remove",
+              type: 3, // STRING
+              required: true,
+              min_length: 2,
+              max_length: 1000,
             },
           ],
         },
@@ -272,35 +312,6 @@ module.exports = async (client, config) => {
               required: true,
               min_length: 2,
               max_length: 365,
-            },
-          ],
-        },
-        {
-          name: "end_poll",
-          description: `[Dev] Test`,
-          type: "CHAT_INPUT",
-        },
-        {
-          name: "parfait",
-          description: `[Dev] Parfait Options And Settings`,
-          options: [
-            {
-              name: "mode",
-              description: "Mention the member you want to break his snow",
-              required: true,
-              type: 3, // STRING
-              choices: [
-                {
-                  name: "opned",
-                  value: "_opened",
-                  description: "Type your unfreeze reason",
-                },
-                {
-                  name: "closed",
-                  value: "_closed",
-                  description: "Type your unfreeze reason",
-                },
-              ],
             },
           ],
         },

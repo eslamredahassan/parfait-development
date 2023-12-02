@@ -46,7 +46,7 @@ module.exports = async (client, config) => {
                     .setColor(color.gray)
                     .setTitle(`${emojis.alert} Cooldown Removed`)
                     .setDescription(
-                      `Your cooldown has been removed by ${interaction.user}.`,
+                      `${emojis.threadMark} Your cooldown has been removed by ${interaction.user}.`,
                     ),
                 ],
               });
@@ -54,8 +54,8 @@ module.exports = async (client, config) => {
               await interaction.editReply({
                 embeds: [
                   {
-                    title: `${emojis.snow} Done!`,
-                    description: `Okay ${interaction.user.username} remove ${memberTarget}'s cooldown`,
+                    title: `${emojis.cooldown} Done!`,
+                    description: `${emojis.threadMark} The cooldown of ${memberTarget} has been removed`,
                     color: color.gray,
                   },
                 ],
@@ -63,8 +63,13 @@ module.exports = async (client, config) => {
               });
             } else {
               await interaction.editReply({
-                content:
-                  "The temporary role was not found. Please contact an admin.",
+                embeds: [
+                  {
+                    title: `${emojis.warning} Error!`,
+                    description: `${emojis.threadMark} The cooldown role was not found. Please contact the developer.`,
+                    color: color.gray,
+                  },
+                ],
                 ephemeral: true,
               });
             }
@@ -72,8 +77,8 @@ module.exports = async (client, config) => {
             await interaction.editReply({
               embeds: [
                 {
-                  title: `${emojis.alert} Oops!`,
-                  description: `No one freeze ${memberTarget} before ${emojis.tea}`,
+                  title: `${emojis.cooldown} Remove Cooldown!`,
+                  description: `${emojis.threadMark} ${memberTarget} was not in cooldown before`,
                   color: color.gray,
                 },
               ],
@@ -81,9 +86,21 @@ module.exports = async (client, config) => {
             });
           }
         } catch (error) {
-          console.error("Error removing temporary role:", error.message);
+          console.error(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error removing cooldown role:`,
+            `\x1b[33m ${error.message}`,
+          );
           await interaction.editReply({
-            content: "An error occurred while removing your temporary role.",
+            embeds: [
+              {
+                title: `${emojis.cooldown} Remove Cooldown!`,
+                description: `${emojis.threadMark} An error occurred while removing cooldown role from ${memberTarget}.`,
+                color: color.gray,
+              },
+            ],
             ephemeral: true,
           });
         }
@@ -92,20 +109,22 @@ module.exports = async (client, config) => {
         await log.send({
           embeds: [
             {
-              title: `${emojis.log} Frozen Log`,
-              description: `${emojis.snow} ${memberTarget}'s cooldown removed by ${interaction.user}`,
+              title: `${emojis.log} Cooldown Log`,
+              description: `${emojis.cooldown} ${memberTarget}'s cooldown removed by ${interaction.user}`,
               color: color.gray,
               fields: [
                 {
-                  name: `${emojis.reason} Freeze Reason`,
-                  value: reason || `No Reason Found`,
+                  name: `${emojis.reason} Removal Reason`,
+                  value:
+                    `${emojis.threadMark} ${reason}` ||
+                    `${emojis.threadMark} No Reason Found`,
                   inline: false,
                 },
               ],
               timestamp: new Date(),
               footer: {
-                text: "Frozen in",
-                icon_url: banners.parfaitIcon,
+                text: "Cooldown removed in",
+                icon_url: client.user.displayAvatarURL({ dynamic: true }),
               },
             },
           ],
@@ -126,8 +145,8 @@ module.exports = async (client, config) => {
         });
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 🛠`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
           `\x1b[31m Permission denied`,
         );
       }

@@ -1,4 +1,6 @@
 const { MessageEmbed } = require("discord.js");
+const moment = require("moment");
+
 const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
 const color = require("../../../src/assest/color.js");
 const emojis = require("../../../src/assest/emojis");
@@ -26,50 +28,78 @@ module.exports = async (client, config) => {
 
           if (temporaryRole) {
             const expiryDate = temporaryRole.expiry;
-            const timestamp = expiryDate.toLocaleString("en-GB", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-            });
-
             await interaction.editReply({
               embeds: [
                 new MessageEmbed()
                   .setColor(color.gray)
-                  .setTitle(
-                    `Cooldown Duration for ${memberTarget.user.username}`,
-                  )
-                  .setDescription(`The cooldown will end on ${timestamp}`),
+                  .setTitle(`${emojis.cooldown} Checking Cooldown Duration`)
+                  .setDescription(
+                    `${emojis.threadMark} The cooldown of ${
+                      memberTarget.user
+                    } will ends <t:${Math.floor(expiryDate / 1000)}:R>`,
+                  ),
               ],
               ephemeral: true,
             });
+            console.log(
+              `\x1b[0m`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m ${memberTarget.user.username}`,
+              `\x1b[32m Checked cooldown of`,
+              `\x1b[35m ${memberTarget.user.username}`,
+              `\x1b[33m that ends ${moment(expiryDate).fromNow()}`,
+            );
           } else {
             await interaction.editReply({
-              content: `${memberTarget} does not have any cooldown.`,
+              embeds: [
+                new MessageEmbed()
+                  .setColor(color.gray)
+                  .setTitle(`${emojis.cooldown} Checking Cooldown Duration`)
+                  .setDescription(
+                    `${emojis.threadMark} ${memberTarget} does not have any cooldown`,
+                  ),
+              ],
               ephemeral: true,
             });
           }
         } catch (error) {
-          console.error("Error checking cooldown duration:", error.message);
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${memberTarget.user.username}`,
+            `\x1b[32m Error checking cooldown duration:`,
+            `\x1b[35m ${error.message}`,
+          );
           await interaction.editReply({
-            content: "An error occurred while checking the cooldown duration.",
+            embeds: [
+              new MessageEmbed()
+                .setColor(color.gray)
+                .setTitle(`${emojis.cooldown} Checking Cooldown Duration`)
+                .setDescription(
+                  `${emojis.threadMark} An error occurred while checking the cooldown duration.`,
+                ),
+            ],
             ephemeral: true,
           });
         }
       } else {
         await interaction.editReply({
-          content:
-            "You don't have the required permissions to check cooldowns.",
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.warning} Permission Denied`)
+              .setDescription(
+                `${emojis.threadMark} You don't have the required permissions to check cooldowns.`,
+              ),
+          ],
           ephemeral: true,
         });
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 🛠`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
           `\x1b[31m Permission denied`,
         );
       }

@@ -64,26 +64,35 @@ module.exports = async (client, config) => {
                 embeds: [
                   new MessageEmbed()
                     .setColor(color.gray)
-                    .setTitle(`${emojis.sad_parfait} Warning!`)
+                    .setTitle(`${emojis.warning} Warning!`)
                     .setDescription(
                       `${emojis.threadMark} Staff member added a cooldown period to you.`,
                     )
                     .addFields(
                       {
-                        name: `${emojis.warning} Reason`,
-                        value: `${emojis.threadMark} ${reason}`,
-                        inline: true,
-                      },
-                      {
                         name: `${emojis.lastUpdate} Cooldown Duration Ends`,
                         value: `${emojis.threadMark} <t:${Math.floor(
                           expiryDate / 1000,
                         )}:R>`,
-                        inline: true,
+                        inline: false,
+                      },
+                      {
+                        name: `${emojis.warning} Reason`,
+                        value: `${emojis.threadMark} ${reason}`,
+                        inline: false,
                       },
                     ),
                 ],
               });
+              console.log(
+                `\x1b[0m`,
+                `\x1b[33m 〢`,
+                `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                `\x1b[31m ${interaction.user.username}`,
+                `\x1b[32m added cooldown to`,
+                `\x1b[35m ${memberTarget.user.username}`,
+                `\x1b[33m ends ${moment(expiryDate).fromNow()}`,
+              );
               const log = interaction.guild.channels.cache.get(config.log);
               await log.send({
                 embeds: [

@@ -12,13 +12,14 @@ module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
     if (
       interaction.isCommand() &&
-      interaction.commandName === "edit_cooldown"
+      interaction.commandName === "change_cooldown"
     ) {
       await interaction.deferReply({ ephemeral: true });
 
       const member = interaction.options.getUser("member");
       const duration = interaction.options.getInteger("duration");
       const durationType = interaction.options.getString("type");
+      const reason = interaction.options.getString("reason");
 
       const perms = [`${config.devRole}`, `${config.devRoleTest}`];
       let staff = guild.members.cache.get(interaction.user.id);
@@ -53,24 +54,23 @@ module.exports = async (client, config) => {
           });
 
           if (updatedRole) {
-            const timestamp = updatedRole.expiry.toLocaleString("en-GB", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-            });
-
             await memberTarget.send({
               embeds: [
                 new MessageEmbed()
                   .setColor(color.gray)
-                  .setTitle(`${emojis.sad_parfait} Cooldown Updated`)
+                  .setTitle(`${emojis.cooldown} Cooldown Changed`)
                   .setDescription(
-                    `${emojis.threadMark} Your cooldown has been updated. It will now end on ${timestamp}.`,
-                  ),
+                    `${
+                      emojis.threadMark
+                    } Your cooldown has been changed. It will now ends <t:${Math.floor(
+                      newExpiryDate / 1000,
+                    )}:R>`,
+                  )
+                  .addFields({
+                    name: `${emojis.warning} Reason`,
+                    value: `${emojis.threadMark} ${reason}`,
+                    inline: false,
+                  }),
               ],
             });
 
@@ -78,13 +78,17 @@ module.exports = async (client, config) => {
             await log.send({
               embeds: [
                 {
-                  title: `${emojis.log} Cooldown Udate Log`,
-                  description: `${emojis.snow} ${interaction.user} updated the cooldown for ${memberTarget}`,
+                  title: `${emojis.log} Cooldown Changes Log`,
+                  description: `${emojis.snow} ${interaction.user} changed the cooldown for ${memberTarget}`,
                   color: color.gray,
                   fields: [
                     {
                       name: `${emojis.lastUpdate} New End Date`,
-                      value: `${emojis.threadMark} ${timestamp}`,
+                      value: `${emojis.threadMark} <t:${Math.floor(
+                        newExpiryDate / 1000,
+                      )}:R> ${emojis.pinkDot} <t:${Math.floor(
+                        newExpiryDate / 1000,
+                      )}:F>`,
                       inline: false,
                     },
                   ],
@@ -102,19 +106,32 @@ module.exports = async (client, config) => {
             await interaction.editReply({
               embeds: [
                 {
-                  title: `${emojis.snow} Cooldown Update!`,
-                  description: `The cooldown duration for ${memberTarget} has been updated. It will now end on ${timestamp}.`,
+                  title: `${emojis.check} Cooldown Changes!`,
+                  description: `${
+                    emojis.threadMarkmid
+                  } The cooldown duration for ${memberTarget} has been changed\n${
+                    emojis.threadMark
+                  } Now it will ends <t:${Math.floor(newExpiryDate / 1000)}:R>`,
                   color: color.gray,
                 },
               ],
               ephemeral: true,
             });
+            console.log(
+              `\x1b[0m`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m ${interaction.user.username}`,
+              `\x1b[32m changed the cooldown of`,
+              `\x1b[35m ${memberTarget.user.username}`,
+              `\x1b[33m for ${moment(newExpiryDate).fromNow()}`,
+            );
           } else {
             await interaction.editReply({
               embeds: [
                 {
-                  title: `${emojis.snow} Cooldown Update!`,
-                  description: `${memberTarget} isn't in cooldown period`,
+                  title: `${emojis.cooldown} Cooldown Changes!`,
+                  description: `${emojis.threadMark} ${memberTarget} isn't in cooldown period`,
                   color: color.gray,
                 },
               ],
@@ -122,12 +139,18 @@ module.exports = async (client, config) => {
             });
           }
         } catch (error) {
-          console.error("Error updating cooldown duration:", error.message);
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error changing ${memberTarget} cooldown duration`,
+            `\x1b[34m ${error.message}`,
+          );
           await interaction.editReply({
             embeds: [
               {
-                title: `${emojis.snow} Oops!`,
-                description: `An error occurred while updating the cooldown duration.`,
+                title: `${emojis.warning} Oops!`,
+                description: `${emojis.threadMark} An error occurred while updating ${memberTarget}'s cooldown duration`,
                 color: color.gray,
               },
             ],
@@ -139,7 +162,12 @@ module.exports = async (client, config) => {
           content: errors.permsError,
           ephemeral: true,
         });
-        console.log("Permission denied");
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Permission denied`,
+        );
       }
     }
   });

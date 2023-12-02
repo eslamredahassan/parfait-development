@@ -1,4 +1,9 @@
 const moment = require("moment");
+
+const banners = require("../assest/banners.js");
+const color = require("../assest/color.js");
+const emojis = require("../assest/emojis");
+
 const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
 
 module.exports = async (client, config) => {
@@ -17,7 +22,13 @@ module.exports = async (client, config) => {
         try {
           member = await guild.members.fetch(role.userId);
         } catch (error) {
-          console.error(`Error fetching member: ${error.message}`);
+          console.error(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error fetching member:`,
+            `\x1b[34m ${error.message}`,
+          );
           continue;
         }
 
@@ -26,22 +37,22 @@ module.exports = async (client, config) => {
           await member.roles.remove(role.roleId);
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${member.user.username}`,
-            `\x1b[32m Finished his cooldown period`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${member.user.username}`,
+            `\x1b[32m Finished his cooldown`,
           );
 
           await member.send({
             embeds: [
               {
-                title: `<:log:1156940336501887047> Cooldown Log`,
-                description: `<:check:1088116412960219237> Your cooldown period has ended. Feel free to reapply again.`,
-                color: `#2b2d31`,
+                title: `${emojis.check} Expired Cooldown period`,
+                description: `${emojis.threadMark} Your cooldown period has ended. Feel free to reapply again.`,
+                color: color.gray,
                 timestamp: new Date(),
                 footer: {
                   text: "Finished in",
-                  icon_url: `https://i.imgur.com/NpNsiR1.png`,
+                  icon_url: client.guild.iconURL({ dynamic: true }),
                 },
               },
             ],
@@ -53,13 +64,13 @@ module.exports = async (client, config) => {
             await channel.send({
               embeds: [
                 {
-                  title: `<:log:1156940336501887047> Cooldown Log`,
-                  description: `<:check:1088116412960219237> ${member.user} Finished his cooldown period`,
-                  color: `#2b2d31`,
+                  title: `${emojis.log} Cooldown Log`,
+                  description: `${emojis.threadMark} ${member.user} Finished his cooldown period`,
+                  color: color.gray,
                   timestamp: new Date(),
                   footer: {
-                    text: "Rejected in",
-                    icon_url: `https://i.imgur.com/NpNsiR1.png`,
+                    text: "Finished in",
+                    icon_url: client.guild.iconURL({ dynamic: true }),
                   },
                 },
               ],
@@ -70,15 +81,17 @@ module.exports = async (client, config) => {
           await TemporaryRole.deleteOne({ _id: role._id });
           console.log(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m Cooldown entry removed from the database`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${member.user.username} Cooldown entry`,
+            `\x1b[31m Removed`,
           );
         } catch (error) {
           console.error(
             `\x1b[0m`,
-            `\x1b[31m 🛠`,
-            `\x1b[33m Error removing ${role.name} role or entry:`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error removing ${role.name} role or entry:`,
             `\x1b[34m ${error.message}`,
           );
         }
@@ -86,8 +99,9 @@ module.exports = async (client, config) => {
     } catch (error) {
       console.error(
         `\x1b[0m`,
-        `\x1b[31m 🛠`,
-        `\x1b[33m Error checking expired cooldown entries:`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error checking expired cooldown entries:`,
         `\x1b[34m ${error.message}`,
       );
     }

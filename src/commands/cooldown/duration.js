@@ -1,3 +1,4 @@
+const moment = require("moment");
 const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
 
 const banners = require("../../assest/banners.js");
@@ -23,8 +24,8 @@ module.exports = async (client, config) => {
           await interaction.editReply({
             embeds: [
               {
-                title: `Cooldown period`,
-                description: `You're not in a cooldown period`,
+                title: `${emojis.cooldown} Cooldown period`,
+                description: `${emojis.threadMark} You're not in a cooldown period`,
                 color: color.gray,
               },
             ],
@@ -35,10 +36,7 @@ module.exports = async (client, config) => {
         }
 
         const roleExpiry = temporaryRole.expiry;
-        const currentTime = new Date();
-        const timeDifference = roleExpiry.getTime() - currentTime.getTime();
-
-        if (timeDifference <= 0) {
+        if (roleExpiry <= 0) {
           await interaction.editReply({
             embeds: [
               {
@@ -52,47 +50,42 @@ module.exports = async (client, config) => {
           });
           return;
         }
-
-        const daysLeft = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        const hoursLeft = Math.floor(
-          (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-        );
-        const minutesLeft = Math.floor(
-          (timeDifference % (1000 * 60 * 60)) / (1000 * 60),
-        );
-        const secondsLeft = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-        let timeLeftString = "";
-
-        if (daysLeft > 0) {
-          timeLeftString += `${daysLeft} days, `;
-        }
-        if (hoursLeft > 0 || daysLeft > 0) {
-          timeLeftString += `${hoursLeft} hours, `;
-        }
-        if (minutesLeft > 0 || hoursLeft > 0 || daysLeft > 0) {
-          timeLeftString += `${minutesLeft} minutes, `;
-        }
-        timeLeftString += `${secondsLeft} seconds`;
-
         await interaction.editReply({
           embeds: [
             {
-              title: `Check cooldown period`,
-              description: `Your cooldown period will end in **${timeLeftString}**`,
+              title: `${emojis.cooldown} Check cooldown period`,
+              description: `${
+                emojis.threadMark
+              } Your cooldown period will end in <t:${Math.floor(
+                roleExpiry / 1000,
+              )}:R>`,
               color: color.gray,
             },
           ],
           ephemeral: true,
           components: [],
         });
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m ${interaction.user.username}`,
+          `\x1b[32m Checked his cooldown period`,
+          `\x1b[33m that ends ${moment(roleExpiry).fromNow()}`,
+        );
       } catch (error) {
-        console.error("Error checking time left for role:", error.message);
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error checking time left for role`,
+          `\x1b[34m ${message}`,
+        );
         await interaction.editReply({
           embeds: [
             {
-              title: `Cooldown period`,
-              description: `An error occurred while checking the time for your role.`,
+              title: `${emojis.warning} Cooldown period`,
+              description: `An error occurred while checking the time for your cooldown.`,
               color: color.gray,
             },
           ],
