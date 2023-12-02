@@ -110,7 +110,10 @@ module.exports = async (client, config) => {
     }
 
     //// Send application results in review room ////
-    if (interaction.customId === "application_modal") {
+    if (
+      interaction.isModalSubmit() &&
+      interaction.customId === "application_modal"
+    ) {
       await interaction.deferUpdate({ ephemeral: true });
       let user_code = interaction.fields.getTextInputValue("ap_usercode");
       let user_age = interaction.fields.getTextInputValue("ap_userage");
@@ -215,7 +218,7 @@ module.exports = async (client, config) => {
 
       console.log(
         `\x1b[0m`,
-        `\x1b[31m ├`,
+        `\x1b[31m 〢`,
         `\x1b[33m ${moment(Date.now()).format("lll")}`,
         `\x1b[32m Created thread`,
         `\x1b[35m ${thread.name}`,

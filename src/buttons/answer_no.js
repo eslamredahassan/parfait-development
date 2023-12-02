@@ -13,6 +13,7 @@ module.exports = async (client, config) => {
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isButton() && interaction.customId === "#answer_no") {
+      await interaction.deferUpdate({ ephemeral: true });
       console.log(
         `\x1b[0m`,
         `\x1b[31m 〢`,
@@ -37,7 +38,7 @@ module.exports = async (client, config) => {
         `\x1b[35m No for Requirements`,
       );
 
-      return await interaction.update({
+      return await interaction.editReply({
         embeds: [
           {
             title: `${emojis.alert} The requirements are important`,
