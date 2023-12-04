@@ -97,8 +97,8 @@ module.exports = async (client, config) => {
         await interaction.editReply({
           embeds: [
             {
-              title: `${emojis.aboutSun} Oops! Something went wrong`,
-              description: `Something went wrong\n${error.message}`,
+              title: `${emojis.warning} Oops!`,
+              description: `Something went wrong while trying to execute this option.`,
               color: color.gray,
             },
           ],
