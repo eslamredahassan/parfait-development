@@ -52,8 +52,8 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
-          name: "duration",
-          description: `[Dev] Check you frozen time left`,
+          name: "my_cooldown",
+          description: `[Dev] Check your application cooldown duration`,
           type: "CHAT_INPUT",
         },
         {
