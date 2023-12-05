@@ -4,7 +4,7 @@ const wait = require("util").promisify(setTimeout);
 const cooldown = new Set();
 require("moment-duration-format");
 
-const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../../src/database/models/CooldownModel");
 
 const errors = require("../../../src/assest/errors.js");
 const color = require("../../../src/assest/color.js");
@@ -32,7 +32,7 @@ module.exports = async (client, config) => {
         const memberTarget = interaction.guild.members.cache.get(member.id);
 
         // Check if the member is in cooldown
-        const existingCooldown = await TemporaryRole.findOne({
+        const existingCooldown = await Cooldown.findOne({
           userId: member.id,
         });
 
@@ -94,11 +94,11 @@ module.exports = async (client, config) => {
             // Implement the logic to remove the cooldown here
 
             try {
-              const temporaryRole = await TemporaryRole.findOneAndDelete({
+              const cooldown = await Cooldown.findOneAndDelete({
                 userId: member.id,
               });
-              if (temporaryRole) {
-                const role = guild.roles.cache.get(temporaryRole.roleId);
+              if (cooldown) {
+                const role = guild.roles.cache.get(cooldown.roleId);
                 if (role) {
                   await memberTarget.roles.remove(role);
 

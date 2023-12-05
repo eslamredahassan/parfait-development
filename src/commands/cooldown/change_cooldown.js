@@ -1,6 +1,6 @@
-const { MessageEmbed } = require("discord.js");
+const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
 const moment = require("moment");
-const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../../src/database/models/CooldownModel");
 const color = require("../../../src/assest/color.js");
 const banners = require("../../../src/assest/banners.js");
 const emojis = require("../../../src/assest/emojis");
@@ -46,98 +46,192 @@ module.exports = async (client, config) => {
             default:
               break;
           }
+          // Create confirmation buttons
+          const row = new MessageActionRow().addComponents(
+            new MessageButton()
+              .setCustomId("#confirm")
+              .setLabel(
+                `Confirm changing the cooldown of ${memberTarget} to ${duration} ${durationType}`,
+              )
+              .setStyle(2)
+              .setEmoji(emojis.check),
+            new MessageButton()
+              .setCustomId("#cancel")
+              .setLabel("Cancel")
+              .setStyle(2)
+              .setEmoji(emojis.cross),
+          );
 
-          const updatedRole = await TemporaryRole.findOneAndUpdate({
-            userId: member.id,
-            expiry: newExpiryDate,
-            new: true,
-          });
+          const embed = new MessageEmbed()
+            .setColor(color.gray)
+            .setTitle(`${emojis.cooldown} Cooldown Change Confirmation`)
+            .setDescription(
+              `${emojis.threadMarkmid} Are you sure you want to change the cooldown of ${memberTarget}\n${emojis.threadMark} To ${duration} ${durationType}?`,
+            );
+          await interaction.editReply({ embeds: [embed], components: [row] });
 
-          if (updatedRole) {
-            await memberTarget.send({
-              embeds: [
-                new MessageEmbed()
-                  .setColor(color.gray)
-                  .setTitle(`${emojis.cooldown} Cooldown Changed`)
-                  .setDescription(
-                    `${
-                      emojis.threadMark
-                    } Your cooldown has been changed. It will now ends <t:${Math.floor(
-                      newExpiryDate / 1000,
-                    )}:R>`,
-                  )
-                  .addFields({
-                    name: `${emojis.warning} Reason`,
-                    value: `${emojis.threadMark} ${reason}`,
-                    inline: false,
-                  }),
-              ],
-            });
+          const filter = (i) =>
+            i.customId === "#confirm" || i.customId === "#cancel";
 
-            const log = interaction.guild.channels.cache.get(config.log);
-            await log.send({
-              embeds: [
-                {
-                  title: `${emojis.log} Cooldown Changes Log`,
-                  description: `${emojis.snow} ${interaction.user} changed the cooldown for ${memberTarget}`,
-                  color: color.gray,
-                  fields: [
+          const collector = interaction.channel.createMessageComponentCollector(
+            {
+              filter,
+              time: 30 * 1000, // Adjust the time as needed
+            },
+          );
+
+          collector.on("collect", async (i) => {
+            collector.stop();
+            if (i.customId === "#confirm") {
+              try {
+                const updatedRole = await Cooldown.findOneAndUpdate({
+                  userId: member.id,
+                  expiry: newExpiryDate,
+                  new: true,
+                });
+
+                if (updatedRole) {
+                  await memberTarget.send({
+                    embeds: [
+                      new MessageEmbed()
+                        .setColor(color.gray)
+                        .setTitle(`${emojis.cooldown} Cooldown Changed`)
+                        .setDescription(
+                          `${
+                            emojis.threadMark
+                          } Your cooldown has been changed. It will now end <t:${Math.floor(
+                            newExpiryDate / 1000,
+                          )}:R>`,
+                        )
+                        .addFields({
+                          name: `${emojis.warning} Reason`,
+                          value: `${emojis.threadMark} ${reason}`,
+                          inline: false,
+                        }),
+                    ],
+                  });
+
+                  const log = interaction.guild.channels.cache.get(config.log);
+                  await log.send({
+                    embeds: [
+                      {
+                        title: `${emojis.log} Cooldown Changes Log`,
+                        description: `${emojis.snow} ${interaction.user} changed the cooldown for ${memberTarget}`,
+                        color: color.gray,
+                        fields: [
+                          {
+                            name: `${emojis.lastUpdate} New End Date`,
+                            value: `${emojis.threadMark} <t:${Math.floor(
+                              newExpiryDate / 1000,
+                            )}:R> ${emojis.pinkDot} <t:${Math.floor(
+                              newExpiryDate / 1000,
+                            )}:F>`,
+                            inline: false,
+                          },
+                        ],
+                        timestamp: new Date(),
+                        footer: {
+                          text: "Updated in",
+                          icon_url: banners.parfaitIcon,
+                        },
+                      },
+                    ],
+                    //this is the important part
+                    ephemeral: false,
+                  });
+
+                  // Add a confirmation embed
+                  await interaction.editReply({
+                    embeds: [
+                      {
+                        title: `${emojis.check} Cooldown Changed Successfully`,
+                        description: `${
+                          emojis.threadMark
+                        } The cooldown duration for ${memberTarget} has been changed successfully\n${
+                          emojis.threadMark
+                        } Now it will end <t:${Math.floor(
+                          newExpiryDate / 1000,
+                        )}:R>`,
+                        color: color.gray,
+                      },
+                    ],
+                    ephemeral: true,
+                    components: [],
+                  });
+
+                  console.log(
+                    `\x1b[0m`,
+                    `\x1b[33m 〢`,
+                    `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                    `\x1b[31m ${interaction.user.username}`,
+                    `\x1b[32m changed the cooldown of`,
+                    `\x1b[35m ${memberTarget.user.username}`,
+                    `\x1b[33m for ${moment(newExpiryDate).fromNow()}`,
+                  );
+                } else {
+                  await interaction.editReply({
+                    embeds: [
+                      {
+                        title: `${emojis.cooldown} Cooldown Changes!`,
+                        description: `${emojis.threadMark} ${memberTarget} isn't in a cooldown period`,
+                        color: color.gray,
+                      },
+                    ],
+                    ephemeral: true,
+                    components: [],
+                  });
+                }
+              } catch (error) {
+                console.log(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Error changing ${memberTarget} cooldown duration`,
+                  `\x1b[34m ${error.message}`,
+                );
+                await interaction.editReply({
+                  embeds: [
                     {
-                      name: `${emojis.lastUpdate} New End Date`,
-                      value: `${emojis.threadMark} <t:${Math.floor(
-                        newExpiryDate / 1000,
-                      )}:R> ${emojis.pinkDot} <t:${Math.floor(
-                        newExpiryDate / 1000,
-                      )}:F>`,
-                      inline: false,
+                      title: `${emojis.warning} Oops!`,
+                      description: `${emojis.threadMark} An error occurred while updating ${memberTarget}'s cooldown duration`,
+                      color: color.gray,
                     },
                   ],
-                  timestamp: new Date(),
-                  footer: {
-                    text: "Updated in",
-                    icon_url: banners.parfaitIcon,
+                  ephemeral: true,
+                  components: [],
+                });
+              }
+            } else if (i.customId === "#cancel") {
+              collector.stop();
+              await interaction.editReply({
+                embeds: [
+                  {
+                    title: `${emojis.cooldown} Cooldown Changes!`,
+                    description: `${emojis.threadMark} Changing the cooldown of ${memberTarget} cancelled`,
+                    color: color.gray,
                   },
-                },
-              ],
-              //this is the important part
-              ephemeral: false,
-            });
+                ],
+                ephemeral: true,
+                components: [],
+              });
+            }
+          });
 
-            await interaction.editReply({
-              embeds: [
-                {
-                  title: `${emojis.check} Cooldown Changes!`,
-                  description: `${
-                    emojis.threadMarkmid
-                  } The cooldown duration for ${memberTarget} has been changed\n${
-                    emojis.threadMark
-                  } Now it will ends <t:${Math.floor(newExpiryDate / 1000)}:R>`,
-                  color: color.gray,
-                },
-              ],
-              ephemeral: true,
-            });
-            console.log(
-              `\x1b[0m`,
-              `\x1b[33m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[31m ${interaction.user.username}`,
-              `\x1b[32m changed the cooldown of`,
-              `\x1b[35m ${memberTarget.user.username}`,
-              `\x1b[33m for ${moment(newExpiryDate).fromNow()}`,
-            );
-          } else {
-            await interaction.editReply({
-              embeds: [
-                {
-                  title: `${emojis.cooldown} Cooldown Changes!`,
-                  description: `${emojis.threadMark} ${memberTarget} isn't in cooldown period`,
-                  color: color.gray,
-                },
-              ],
-              ephemeral: true,
-            });
-          }
+          collector.on("end", (collected, reason) => {
+            if (reason === "time") {
+              interaction.editReply({
+                embeds: [
+                  {
+                    title: `${emojis.warning} Cooldown Changes Timeout!`,
+                    description: `${emojis.threadMark} Changing cooldown cancelled due to timeout`,
+                    color: color.gray,
+                  },
+                ],
+                ephemeral: true,
+                components: [],
+              });
+            }
+          });
         } catch (error) {
           console.log(
             `\x1b[0m`,
@@ -155,12 +249,20 @@ module.exports = async (client, config) => {
               },
             ],
             ephemeral: true,
+            components: [],
           });
         }
       } else {
         await interaction.editReply({
-          content: errors.permsError,
+          embeds: [
+            {
+              title: `${emojis.warning} Permission Denied`,
+              description: errors.permsError,
+              color: color.gray,
+            },
+          ],
           ephemeral: true,
+          components: [],
         });
         console.log(
           `\x1b[0m`,

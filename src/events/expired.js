@@ -4,13 +4,13 @@ const banners = require("../assest/banners.js");
 const color = require("../assest/color.js");
 const emojis = require("../assest/emojis");
 
-const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../src/database/models/CooldownModel");
 
 module.exports = async (client, config) => {
   const checkExpiredRoles = async () => {
     try {
       const currentTime = new Date();
-      const expiredRoles = await TemporaryRole.find({
+      const expiredRoles = await Cooldown.find({
         expiry: { $lt: currentTime },
       });
 
@@ -52,7 +52,7 @@ module.exports = async (client, config) => {
                 timestamp: new Date(),
                 footer: {
                   text: "Finished in",
-                  icon_url: client.guild.iconURL({ dynamic: true }),
+                  icon_url: banners.parfaitIcon,
                 },
               },
             ],
@@ -70,7 +70,7 @@ module.exports = async (client, config) => {
                   timestamp: new Date(),
                   footer: {
                     text: "Finished in",
-                    icon_url: client.guild.iconURL({ dynamic: true }),
+                    icon_url: banners.parfaitIcon,
                   },
                 },
               ],
@@ -78,7 +78,7 @@ module.exports = async (client, config) => {
             });
           }
 
-          await TemporaryRole.deleteOne({ _id: role._id });
+          await Cooldown.deleteOne({ _id: role._id });
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,

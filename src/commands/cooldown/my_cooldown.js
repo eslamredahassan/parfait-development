@@ -1,5 +1,5 @@
 const moment = require("moment");
-const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../../src/database/models/CooldownModel");
 
 const banners = require("../../assest/banners.js");
 const errors = require("../../assest/errors.js");
@@ -17,10 +17,10 @@ module.exports = async (client, config) => {
       await interaction.deferReply({ ephemeral: true });
 
       try {
-        const temporaryRole = await TemporaryRole.findOne({
+        const cooldown = await Cooldown.findOne({
           userId: member.id,
         });
-        if (!temporaryRole) {
+        if (!cooldown) {
           await interaction.editReply({
             embeds: [
               {
@@ -35,7 +35,7 @@ module.exports = async (client, config) => {
           return;
         }
 
-        const roleExpiry = temporaryRole.expiry;
+        const roleExpiry = cooldown.expiry;
         if (roleExpiry <= 0) {
           await interaction.editReply({
             embeds: [

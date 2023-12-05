@@ -2,7 +2,7 @@ const { MessageEmbed } = require("discord.js");
 const moment = require("moment");
 const wait = require("util").promisify(setTimeout);
 const Application = require("../../src/database/models/application");
-const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../src/database/models/CooldownModel");
 
 const banners = require("../assest/banners.js");
 const color = require("../assest/color.js");
@@ -58,7 +58,7 @@ module.exports = async (client, config) => {
               const expiryDate = new Date();
               expiryDate.setDate(expiryDate.getDate() + expiryInDays);
 
-              const temporaryRole = new TemporaryRole({
+              const Cooldown = new Cooldown({
                 userId: application.userId,
                 guildId: guild.id,
                 roleId: config.coolDown,
@@ -66,7 +66,7 @@ module.exports = async (client, config) => {
               });
 
               try {
-                await temporaryRole.save();
+                await Cooldown.save();
               } catch (error) {
                 console.log(
                   `\x1b[0m`,

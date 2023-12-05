@@ -15,7 +15,7 @@ const emojis = require("../assest/emojis");
 
 // Database Schemas
 const Application = require("../../src/database/models/application");
-const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../src/database/models/CooldownModel");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
@@ -29,37 +29,42 @@ module.exports = async (client, config) => {
 
         //// Modal application code ///
         let reply_modal = new Modal()
-          .setTitle(`Apologize reason of ${user.user.username}`)
+          .setTitle(`Apologize to ${user.user.username}`)
           .setCustomId(`ap_apologize`);
 
         const ap_reason = new TextInputComponent()
           .setCustomId("ap_reason")
-          .setLabel(`Direct Messaging box`.substring(0, 45))
+          .setLabel(`Apologize Message`.substring(0, 45))
           .setMinLength(1)
           .setMaxLength(365)
           .setRequired(false)
-          .setPlaceholder(`Type your message here`)
+          .setPlaceholder(`Type your apologize message here or leave it empty.`)
           .setStyle(2);
 
         let row_reply = new MessageActionRow().addComponents(ap_reason);
         reply_modal.addComponents(row_reply);
 
-        const perms = [`${config.devRole}`, `${config.devRoleTest}`];
+        const perms = [`${config.devRole}`, `${config.STFF}`];
         let staff = guild.members.cache.get(interaction.user.id);
         if (staff.roles.cache.hasAny(...perms)) {
           await interaction.showModal(reply_modal);
         } else {
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Permission denied`,
+          );
           await interaction.editReply({
             embeds: [
               {
-                title: `${emojis.alert} Permission denied`,
-                description: `${errors.permsError}`,
-                color: `${color.gray}`,
+                title: `${emojis.warning} Permission denied`,
+                description: errors.permsError,
+                color: color.gray,
               },
             ],
             ephemeral: true,
           });
-          console.error("Permission denied.");
         }
       }
       //// Send application results in review room ////
@@ -100,63 +105,61 @@ module.exports = async (client, config) => {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + expiryInDays);
 
-        const temporaryRole = new TemporaryRole({
+        const CooldownDuration = new Cooldown({
+          username: ap_user.user.username,
           userId: ap_user.id,
           guildId: guild.id,
           roleId: config.coolDown,
           expiry: expiryDate,
+          staff: interaction.user.username,
+          reason: reason || "No reason provided",
         });
+        // Save the temporary role data to the database
+        await CooldownDuration.save();
 
-        try {
-          await temporaryRole.save(); // Save the temporary role data to the database
+        // Assign the role to the member
+        await ap_user.roles.add(config.coolDown);
+        await ap_user.roles.remove(config.waitRole);
 
-          // Assign the role to the member
-          await ap_user.roles.add(config.coolDown);
-          await ap_user.roles.remove(config.waitRole);
-        } catch (err) {
-          console.error(
-            `Error assigning ${config.coolDown.name} role:`,
-            err.message,
-          );
-        }
-
-        try {
-          const temporaryRole = await TemporaryRole.findOne({
-            userId: ap_user.id,
-          });
-
-          //// Send message to accepted member ///
-          await ap_user.send({
-            embeds: [
-              new MessageEmbed()
-                .setColor(color.gray)
-                .setTitle(`${emojis.sad_parfait} We Apologize`)
-                .setImage(banners.dmApologizeBanner)
-                .setDescription(reason || messages.apologize)
-                .addFields({
-                  name: "You can apply again after",
-                  value: temporaryRole.expiry.toDateString(""),
-                }),
-            ],
-          });
-        } catch (e) {
-          return await interaction.editReply({
-            content: `The ${user} Dms Were Closed.`,
-            ephemeral: true,
-          });
-        }
-
+        const cooldownExpiry = await Cooldown.findOne({
+          userId: ap_user.id,
+        });
+        const cooldownTime = cooldownExpiry.expiry;
+        // Send message to accepted member
+        await ap_user.send({
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.sad_parfait} We Apologize`)
+              .setImage(banners.dmApologizeBanner)
+              .setDescription(reason || messages.apologize)
+              .addFields({
+                name: `${emojis.time} Your cooldown ends in`,
+                value: `${emojis.threadMark} <t:${Math.floor(
+                  cooldownTime / 1000,
+                )}:F>`,
+              }),
+          ],
+        });
+        // Send message to log chgannel
         const log = interaction.guild.channels.cache.get(config.log);
         await log.send({
           embeds: [
             {
-              title: `${emojis.log} Accept Log`,
+              title: `${emojis.log} Apologize Log`,
               description: `${emojis.check} ${ap_user.user} have been apologized by ${interaction.user}`,
               color: color.gray,
               fields: [
                 {
-                  name: `${emojis.reason} Rejection Reason`,
+                  name: `${emojis.reason} Apologize Reason`,
                   value: reason || `No Reason Found`,
+                  inline: false,
+                },
+                {
+                  name: `${emojis.time} Cooldown Expires`,
+                  value: `${emojis.threadMark} On <t:${Math.floor(
+                    cooldownTime / 1000,
+                  )}:F>`,
                   inline: false,
                 },
               ],
@@ -177,22 +180,19 @@ module.exports = async (client, config) => {
           new: true,
         });
         //// Interactions roles ///
-        await ap_user.roles
-          .remove([config.SunTest, config.SquadSUN])
-          .catch(() => console.log("Error Line 2498"));
-        console.log(
-          `\x1b[0m`,
-          `\x1b[33m 🛠`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
-          `\x1b[33m Sun Roles REMOVED`,
-        );
-
+        await ap_user.roles.remove([config.SunTest, config.SquadSUN]);
         //// Send message after accepting member ///
         await interaction.editReply({
           embeds: [
             {
-              title: `${emojis.check} Apologize Alert`,
-              description: `${emojis.threadMarkmid} You apologized to ${ap_user} for not being in **${interaction.guild.name}**\n${emojis.threadMark} Removed his application from pin list`,
+              title: `${emojis.check} Apologize Message Sent`,
+              description: `${
+                emojis.threadMarkmid
+              } You apologized to ${ap_user} for not being in **SUN**\n${
+                emojis.threadMarkmid
+              } Removed his application from pin list\n${
+                emojis.threadMark
+              } His cooldown ends on <t:${Math.floor(cooldownTime / 1000)}:F>`,
               color: color.gray,
             },
           ],
@@ -201,9 +201,22 @@ module.exports = async (client, config) => {
         });
       }
     } catch (error) {
-      console.error("Error occurred:", error.message);
+      console.log(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error in Apologize Command:`,
+        `\x1b[33m ${error.message}`,
+      );
       await interaction.editReply({
-        content: "Oops! There was an error processing your request.",
+        embeds: [
+          {
+            title: `${emojis.check} Apologize Alert`,
+            description: `${emojis.threadMark} An error occurred while sending your apologize message.`,
+            color: color.gray,
+          },
+        ],
+        //this is the important part
         ephemeral: true,
       });
     }

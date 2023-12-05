@@ -57,33 +57,7 @@ module.exports = async (client, config) => {
           let applyChannel = interaction.guild.channels.cache.get(
             config.applyChannel,
           );
-          if (!applyChannel) {
-            console.log(
-              `\x1b[0m`,
-              `\x1b[33m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[31m applyChannel channel not found.`,
-            );
-            await interaction.editReply({
-              content: "Oops! There was an error processing your request.",
-              ephemeral: true,
-            });
-            return;
-          }
           const log = interaction.guild.channels.cache.get(config.log);
-          if (!log) {
-            console.log(
-              `\x1b[0m`,
-              `\x1b[33m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("lll")}`,
-              `\x1b[31m log channel not found.`,
-            );
-            await interaction.editReply({
-              content: "Oops! There was an error processing your request.",
-              ephemeral: true,
-            });
-            return;
-          }
           /// Send the action to the console log
           console.log(
             `\x1b[0m`,
@@ -93,34 +67,11 @@ module.exports = async (client, config) => {
             `\x1b[32m APPROVED BY ${interaction.user.username}`,
           );
           //// Add roles to the user
-          await ap_user.roles
-            .add([config.SunTest, config.SquadSUN])
-            .catch((error) =>
-              console.error("Error adding role", error.message),
-            );
+          await ap_user.roles.add([config.SunTest, config.SquadSUN]);
           const SunTest = interaction.guild.roles.cache.get(config.SunTest);
           const SquadSUN = interaction.guild.roles.cache.get(config.SquadSUN);
-          console.log(
-            `\x1b[0m`,
-            `\x1b[33m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[31m ${SunTest.name} and ${SquadSUN.name} Roles`,
-            `\x1b[33m ADDED TO ${ap_user.user.username}`,
-          );
           // Remove roles from the user
-          await ap_user.roles
-            .remove(config.waitRole)
-            .catch((error) =>
-              console.log("Error removing role", error.message),
-            );
-          const waitRole = interaction.guild.roles.cache.get(config.waitRole);
-          // Send the action to the console log
-          console.log(
-            `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[33m ${waitRole.name} REMOVED`,
-          );
+          await ap_user.roles.remove(config.waitRole);
           // Send a direct message to the user
           await ap_user.send({
             embeds: [
@@ -290,14 +241,6 @@ module.exports = async (client, config) => {
           await wait(2000);
           /// Archive the thread
           await threadName.setArchived(true);
-          // Send the action to the console log
-          console.log(
-            `\x1b[0m`,
-            `\x1b[33m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[31m ${threadName.name}`,
-            `\x1b[33m CLOSED`,
-          );
 
           let promote = new MessageActionRow().addComponents([
             new MessageButton()
@@ -318,6 +261,11 @@ module.exports = async (client, config) => {
               .setCustomId("#ap_reply")
               .setLabel(``)
               .setEmoji(emojis.dm),
+            new MessageButton()
+              .setStyle(4) //-->> Red Color
+              .setCustomId("#ap_freeze")
+              .setLabel(``)
+              .setEmoji(emojis.freeze),
           ]);
 
           let embed = new MessageEmbed(interaction.message.embeds[0])
@@ -331,7 +279,7 @@ module.exports = async (client, config) => {
             embeds: [embed],
             components: [promote],
           });
-
+          // Send message to log channel
           await log.send({
             embeds: [
               {
@@ -354,21 +302,17 @@ module.exports = async (client, config) => {
             new: true,
           });
           //// Send message after accepting member ///
-          await interaction
-            .editReply({
-              embeds: [
-                {
-                  title: `${emojis.check} Approvement Alert`,
-                  description: `${emojis.threadMarkmid} You've approved ${ap_user} application\n${emojis.threadMark} His thread will be automatically archived`,
-                  color: color.gray,
-                },
-              ],
-              //this is the important part
-              ephemeral: true,
-            })
-            .catch((error) =>
-              console.error("Error in interaction reply:", error.message),
-            );
+          await interaction.editReply({
+            embeds: [
+              {
+                title: `${emojis.check} Approvement Alert`,
+                description: `${emojis.threadMarkmid} You've approved ${ap_user} application\n${emojis.threadMark} His thread will be automatically archived`,
+                color: color.gray,
+              },
+            ],
+            //this is the important part
+            ephemeral: true,
+          });
         } else {
           await interaction
             .reply({
@@ -398,7 +342,14 @@ module.exports = async (client, config) => {
       } catch (error) {
         console.error("Error in approve script:", error.message);
         await interaction.editReply({
-          content: "Oops! There was an error processing your request.",
+          embeds: [
+            {
+              title: `${emojis.warning} Oops!`,
+              description: `${emojis.threadMark} Something went wrong while approving the application.`,
+              color: color.gray,
+            },
+          ],
+          //this is the important part
           ephemeral: true,
         });
       }

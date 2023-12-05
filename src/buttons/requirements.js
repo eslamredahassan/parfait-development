@@ -8,7 +8,7 @@ const fieldsText = require("../assest/fieldsText.js");
 const banners = require("../assest/banners.js");
 const color = require("../assest/color.js");
 const emojis = require("../assest/emojis");
-const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../src/database/models/CooldownModel");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
@@ -34,11 +34,12 @@ module.exports = async (client, config) => {
         ]);
         let member = guild.members.cache.get(interaction.user.id);
         if (member.roles.cache.has(config.coolDown)) {
-          const temporaryRole = await TemporaryRole.findOne({
+          const cooldown = await Cooldown.findOne({
             userId: member.id,
+            roleId: config.coolDown,
           });
-          if (temporaryRole) {
-            const roleExpiry = temporaryRole.expiry.getTime();
+          if (cooldown) {
+            const roleExpiry = cooldown.expiry.getTime();
             await interaction.editReply({
               embeds: [
                 {
@@ -176,9 +177,22 @@ module.exports = async (client, config) => {
           );
         }
       } catch (error) {
-        console.error("Error:", error.message);
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error in requirements command:`,
+          `\x1b[35m ${error.message}`,
+        );
         await interaction.editReply({
-          content: "Oops! There was an error processing your request.",
+          embeds: [
+            {
+              title: `${emojis.warning} Oops!`,
+              description: `${emojis.threadMark} Something went wrong while loading some data.`,
+              color: color.gray,
+            },
+          ],
+          //this is the important part
           ephemeral: true,
         });
       }

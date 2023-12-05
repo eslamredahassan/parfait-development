@@ -57,17 +57,15 @@ module.exports = async (client, config) => {
             `\x1b[32m PROMOTED BY ${interaction.user.username}`,
           );
           //// Send message to accepted member ///
-          await ap_user
-            .send({
-              embeds: [
-                new MessageEmbed()
-                  .setColor(color.gray)
-                  .setTitle(`${emojis.s_parfait} Congratulations`)
-                  .setImage(banners.promoteBanner)
-                  .setDescription(messages.promoteMessage),
-              ],
-            })
-            .catch(() => console.log("Error Line 2398"));
+          await ap_user.send({
+            embeds: [
+              new MessageEmbed()
+                .setColor(color.gray)
+                .setTitle(`${emojis.s_parfait} Congratulations`)
+                .setImage(banners.promoteBanner)
+                .setDescription(messages.promoteMessage),
+            ],
+          });
           //// Send message to log channel after promoting member ///
           const log = interaction.guild.channels.cache.get(config.log);
           await log.send({
@@ -87,69 +85,38 @@ module.exports = async (client, config) => {
             ephemeral: false,
           });
           //// Interactions roles ///
-          try {
-            await ap_user.roles
-              .remove(config.SunTest)
-              .catch(() => console.log("Error Line 2414"));
-            console.log(
-              `\x1b[0m`,
-              `\x1b[31m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[33m SunTest role REMOVED`,
-            );
-            await ap_user.roles
-              .add(config.TeamSun)
-              .catch(() => console.log("Error Line 2420"));
-            console.log(
-              `\x1b[0m`,
-              `\x1b[31m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[33m SquadSUN role ADDED`,
-            );
+          await ap_user.roles.remove(config.SunTest);
+          await ap_user.roles.add(config.TeamSun);
 
-            const applicationStatus = await Application.findOneAndUpdate({
-              userId: ap_user.id,
-              $set: { status: "Promoted" }, // Change "status" to the field you want to update
-              new: true,
-            });
-            //// Send message after accepting member ///
-            await interaction
-              .editReply({
-                embeds: [
-                  {
-                    title: `${emojis.check} Promotion Alert`,
-                    description: `${emojis.threadMarkmid} You promoted ${ap_user} to <@&${config.TeamSun}> member\n${emojis.threadMark} Removed his application from pin list`,
-                    color: color.gray,
-                  },
-                ],
-                //this is the important part
-                ephemeral: true,
-              })
-              .catch(() => console.log("Error Line 79"));
-          } catch (err) {
-            console.log(
-              `\x1b[0m`,
-              `\x1b[33m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[31m ${ap_user.user.username} ROLES`,
-              `\x1b[35m Unfounded!`,
-            );
-            throw err;
-          }
+          const applicationStatus = await Application.findOneAndUpdate({
+            userId: ap_user.id,
+            $set: { status: "Promoted" }, // Change "status" to the field you want to update
+            new: true,
+          });
+          //// Send message after accepting member ///
+          await interaction.editReply({
+            embeds: [
+              {
+                title: `${emojis.check} Promotion Alert`,
+                description: `${emojis.threadMarkmid} You promoted ${ap_user} to <@&${config.TeamSun}> member\n${emojis.threadMark} Removed his application from pin list`,
+                color: color.gray,
+              },
+            ],
+            //this is the important part
+            ephemeral: true,
+          });
         } else {
-          await interaction
-            .editReply({
-              embeds: [
-                {
-                  title: `${emojis.alert} Permission denied`,
-                  description: errors.permsError,
-                  color: color.gray,
-                },
-              ],
-              //this is the important part
-              ephemeral: true,
-            })
-            .catch((error) => console.log(error.message));
+          await interaction.editReply({
+            embeds: [
+              {
+                title: `${emojis.alert} Permission denied`,
+                description: errors.permsError,
+                color: color.gray,
+              },
+            ],
+            //this is the important part
+            ephemeral: true,
+          });
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
@@ -158,9 +125,22 @@ module.exports = async (client, config) => {
           );
         }
       } catch (error) {
-        console.error("Error occurred:", error.message);
+        console.log(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error in promote command:`,
+          `\x1b[31m ${error.message}`,
+        );
         await interaction.editReply({
-          content: "Oops! There was an error processing your request.",
+          embeds: [
+            {
+              title: `${emojis.warning} Oops!`,
+              description: `${emojis.threadMark} Something went wrong wrong while promoting ${ap_user}.`,
+              color: color.gray,
+            },
+          ],
+          //this is the important part
           ephemeral: true,
         });
       }

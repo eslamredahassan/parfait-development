@@ -1,7 +1,7 @@
 const { MessageEmbed } = require("discord.js");
 const moment = require("moment");
 
-const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../../src/database/models/CooldownModel");
 const color = require("../../../src/assest/color.js");
 const emojis = require("../../../src/assest/emojis");
 
@@ -22,12 +22,12 @@ module.exports = async (client, config) => {
 
       if (staff.roles.cache.hasAny(...perms)) {
         try {
-          const temporaryRole = await TemporaryRole.findOne({
+          const Cooldown = await Cooldown.findOne({
             userId: member.id,
           });
 
-          if (temporaryRole) {
-            const expiryDate = temporaryRole.expiry;
+          if (Cooldown) {
+            const expiryDate = Cooldown.expiry;
             await interaction.editReply({
               embeds: [
                 new MessageEmbed()

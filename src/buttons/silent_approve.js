@@ -8,6 +8,9 @@ const errors = require("../assest/errors.js");
 const color = require("../assest/color.js");
 const emojis = require("../assest/emojis");
 
+// Database Schemas
+const Application = require("../../src/database/models/application");
+
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
@@ -41,6 +44,11 @@ module.exports = async (client, config) => {
               .setCustomId("#ap_reply")
               .setLabel(` `)
               .setEmoji(emojis.dm),
+            new MessageButton()
+              .setStyle(4) //-->> Red Color
+              .setCustomId("#ap_freeze")
+              .setLabel(``)
+              .setEmoji(emojis.freeze),
           ]);
 
           let embed = new MessageEmbed(interaction.message.embeds[0])
@@ -71,7 +79,7 @@ module.exports = async (client, config) => {
             embeds: [
               {
                 title: `${emojis.log} Approvement Log`,
-                description: `${emojis.check} ${ap_user.user} have been aproved silently by ${interaction.user}`,
+                description: `${emojis.check} ${ap_user.user} have been approved silently by ${interaction.user}`,
                 color: color.gray,
                 timestamp: new Date(),
                 footer: {
@@ -84,27 +92,8 @@ module.exports = async (client, config) => {
             ephemeral: false,
           });
           //// Interactions roles ///
-          await ap_user.roles
-            .add([config.SunTest, config.SquadSUN])
-            .catch(() => console.log("Error Line 2298"));
-          console.log(
-            `\x1b[0m`,
-            `\x1b[31m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[35m Sun Roles`,
-            `\x1b[32m ADDED`,
-          );
-
-          await ap_user.roles
-            .remove(config.waitRole)
-            .catch(() => console.log("Error Line 2312"));
-          console.log(
-            `\x1b[0m`,
-            `\x1b[33m 〢`,
-            `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[31m Wannabe Role`,
-            `\x1b[32m REMOVED`,
-          );
+          await ap_user.roles.add([config.SunTest, config.SquadSUN]);
+          await ap_user.roles.remove(config.waitRole);
 
           let applyChannel = interaction.guild.channels.cache.get(
             config.applyChannel,
@@ -136,8 +125,8 @@ module.exports = async (client, config) => {
             .editReply({
               embeds: [
                 {
-                  title: `${emojis.check} Approvement Alert`,
-                  description: `${emojis.threadMarkmid} You Approved ${user} application silently\n${emojis.threadMark} His thread will be automatically archived`,
+                  title: `${emojis.check} Application Approved`,
+                  description: `${emojis.threadMarkmid} You have been approved ${user}'s application silently\n${emojis.threadMark} His thread will be automatically archived`,
                   color: color.gray,
                 },
               ],
@@ -169,7 +158,14 @@ module.exports = async (client, config) => {
       } catch (error) {
         console.error("Error occurred:", error.message);
         await interaction.editReply({
-          content: "Oops! There was an error processing your request.",
+          embeds: [
+            {
+              title: `${emojis.warning} Oops!`,
+              description: `${emojis.threadMark} Something went wrong while approving this application.`,
+              color: color.gray,
+            },
+          ],
+          //this is the important part
           ephemeral: true,
         });
       }

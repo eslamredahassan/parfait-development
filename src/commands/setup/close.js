@@ -12,6 +12,7 @@ const errors = require("../../assest/errors.js");
 const banners = require("../../assest/banners");
 const color = require("../../assest/color");
 const emojis = require("../../assest/emojis");
+const UI = require("../../../src/database/models/userInterface");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
@@ -79,7 +80,7 @@ module.exports = async (client, config) => {
           const perms = [`${config.devRole}`, `${config.devRoleTest}`];
           let staff = guild.members.cache.get(interaction.user.id);
           if (staff.roles.cache.hasAny(...perms)) {
-            await applyChannel.send({
+            let userInterface = await applyChannel.send({
               embeds: [
                 new MessageEmbed()
                   .setColor(color.gray)
@@ -118,6 +119,43 @@ module.exports = async (client, config) => {
               ephemeral: true,
               components: [],
             });
+
+            const existingInterfaceData = await UI.findOne({
+              guildId: interaction.guild.id,
+              channelId: applyChannel.id,
+            });
+
+            if (existingInterfaceData) {
+              // If entry exists, update its properties
+              existingInterfaceData.embedId = userInterface.id;
+
+              try {
+                // Save the updated entry back to the database
+                await existingInterfaceData.save();
+              } catch (error) {
+                console.error(
+                  "Error updating application information:",
+                  error.message,
+                );
+              }
+            } else {
+              // If entry does not exist, create a new entry
+              const interfaceData = new UI({
+                guildId: interaction.guild.id,
+                channelId: applyChannel.id,
+                embedId: userInterface.id,
+              });
+
+              try {
+                // Save the new entry to the database
+                await interfaceData.save();
+              } catch (error) {
+                console.error(
+                  "Error saving application information:",
+                  error.message,
+                );
+              }
+            }
           } else {
             return await interaction
               .reply({

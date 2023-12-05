@@ -22,12 +22,11 @@ module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
     try {
       if (interaction.isButton() && interaction.customId === "#ap_freeze") {
-        await interaction.deferReply({ ephemeral: true });
         const ID = interaction.message.embeds[0].footer.text;
         const user = await interaction.guild.members.fetch(ID);
 
         let reply_modal = new Modal()
-          .setTitle(`Freeze reason of ${user.user.username}`)
+          .setTitle(`Freeze ${user.user.username}`)
           .setCustomId(`ap_freeze`);
 
         const ap_reason = new TextInputComponent()
@@ -36,7 +35,7 @@ module.exports = async (client, config) => {
           .setMinLength(1)
           .setMaxLength(365)
           .setRequired(false)
-          .setPlaceholder(`Type your message here`)
+          .setPlaceholder(`Type your reason here or leave it empty`)
           .setStyle(2);
 
         let row_reply = new MessageActionRow().addComponents(ap_reason);
@@ -69,11 +68,10 @@ module.exports = async (client, config) => {
       }
       //// Send application results in review room ////
       if (interaction.customId === "ap_freeze") {
+        await interaction.deferReply({ ephemeral: true });
         let reason = interaction.fields.getTextInputValue("ap_reason");
 
         /// Embed of data in review room ///
-
-        await interaction.deferReply({ ephemeral: true });
         let embed = new MessageEmbed(interaction.message.embeds[0])
           .setTitle(`${emojis.alert} Banned by ${interaction.user.username}`)
           .setColor(color.gray)
@@ -106,7 +104,7 @@ module.exports = async (client, config) => {
               .setImage(banners.bannedBanner)
               .setDescription(
                 reason ||
-                  `You have been frozen from the recruitment system for breaking the rules`,
+                  `You have been frozen from applying to SUN again for breaking the rules`,
               ),
           ],
         });
@@ -137,21 +135,20 @@ module.exports = async (client, config) => {
         });
         //// Try to manage his roles ///
         try {
-          await ap_user.roles
-            .remove(config.waitRole)
-            .catch(() => console.log("Error Line 134"));
-          await ap_user.roles
-            .add(config.banRole)
-            .catch(() => console.log("Error Line 135"));
-        } catch (err) {
+          await ap_user.roles.remove([
+            config.waitRole,
+            config.SunTest,
+            config.SquadSUN,
+          ]);
+          await ap_user.roles.add(config.banRole);
+        } catch (error) {
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
             `\x1b[33m ${moment(Date.now()).format("LT")}`,
-            `\x1b[31m ${ap_user.user.username} ROLES`,
-            `\x1b[35m Unfounded!`,
+            `\x1b[31m Error in role management:`,
+            `\x1b[33m ${error.message}`,
           );
-          throw err;
         }
         console.log(
           `\x1b[0m`,
@@ -160,28 +157,26 @@ module.exports = async (client, config) => {
           `\x1b[31m Sun wannabe role REMOVED`,
           `\x1b[33m Freeze role ADDED`,
         );
-
         let applyChannel = interaction.guild.channels.cache.get(
           config.applyChannel,
         );
-        if (!applyChannel) return;
 
         const user = ap_user.user;
         const userName = user.username;
 
         const threadName = applyChannel.threads.cache.find(
-          (x) => x.name === `${"🧤︱" + userName + " Tryout" || " Accepted"}`,
+          (x) => x.name === `${"🧤︱" + userName + " Tryout" || " Approved"}`,
         );
-
-        /// Rename The Thread ///
-        await threadName.setName("🧤︱" + `${userName}` + " Frozen");
-        /// Lock the thread ///
-        await wait(1000); // ** cooldown 10 seconds ** \\
-        await threadName.setLocked(true);
-        /// Archive the thread ///
-        await wait(1500); // ** cooldown 10 seconds ** \\
-        await threadName.setArchived(true);
-
+        if (threadName && !threadName.archived) {
+          /// Rename The Thread ///
+          await threadName.setName("🧤︱" + `${userName}` + " Frozen");
+          /// Lock the thread ///
+          await wait(1000); // ** cooldown 10 seconds ** \\
+          await threadName.setLocked(true);
+          /// Archive the thread ///
+          await wait(1500); // ** cooldown 10 seconds ** \\
+          await threadName.setArchived(true);
+        }
         const applicationStatus = await Application.findOneAndUpdate({
           userId: ap_user.id,
           $set: { status: "Frozen" }, // Change "status" to the field you want to update
@@ -191,8 +186,8 @@ module.exports = async (client, config) => {
         await interaction.editReply({
           embeds: [
             {
-              title: `${emojis.snow} Frozen Alert`,
-              description: `${emojis.threadMarkmid} You've freeze ${user} from the recruitment system\n${emojis.threadMarkmid} Removed his application from pin list\n${emojis.threadMark} His thread will be automatically archived`,
+              title: `${emojis.check} The member has been frozen`,
+              description: `${emojis.threadMarkmid} You've freeze ${user} from the recruitment system\n${emojis.threadMark}`,
               color: color.gray,
             },
           ],
@@ -201,9 +196,22 @@ module.exports = async (client, config) => {
         });
       }
     } catch (error) {
-      console.error("Error occurred:", error.message);
+      console.log(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error in Freeze command:`,
+        `\x1b[33m ${error.message}`,
+      );
       await interaction.editReply({
-        content: "Oops! There was an error processing your request.",
+        embeds: [
+          {
+            title: `${emojis.warning} Oops!`,
+            description: `${emojis.threadMark} An error occurred while freezing ${user}.`,
+            color: color.gray,
+          },
+        ],
+        //this is the important part
         ephemeral: true,
       });
     }

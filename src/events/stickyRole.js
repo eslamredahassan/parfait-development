@@ -1,13 +1,13 @@
 const { MessageEmbed } = require("discord.js");
 const moment = require("moment");
 
-const TemporaryRole = require("../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../src/database/models/CooldownModel");
 const color = require("../assest/color.js");
 const emojis = require("../assest/emojis");
 
 module.exports = async (client, config) => {
   // Function to reapply temporary roles for rejoining members
-  const reapplyTemporaryRoles = async () => {
+  const reapplyCooldowns = async () => {
     try {
       const currentTime = new Date();
       const guild = client.guilds.cache.get(config.guildID);
@@ -16,7 +16,7 @@ module.exports = async (client, config) => {
       const allMembers = await guild.members.fetch();
 
       for (const [memberId, member] of allMembers) {
-        const existingRoles = await TemporaryRole.find({
+        const existingRoles = await Cooldown.find({
           userId: memberId,
           expiry: { $gt: currentTime },
         });
@@ -79,7 +79,7 @@ module.exports = async (client, config) => {
   };
 
   // Run the function every hour (adjust as needed)
-  setInterval(reapplyTemporaryRoles, 5 * 1000); // 60 minutes
+  setInterval(reapplyCooldowns, 5 * 1000); // 60 minutes
 
   // Other code
 };

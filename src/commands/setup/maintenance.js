@@ -14,6 +14,7 @@ const interface = require("../../assest/interface.js");
 const banners = require("../../assest/banners.js");
 const color = require("../../assest/color.js");
 const emojis = require("../../assest/emojis");
+const UI = require("../../../src/database/models/userInterface");
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
@@ -99,7 +100,7 @@ module.exports = async (client, config) => {
           );
           if (!applyChannel) return;
 
-          applyChannel.send({
+          let userInterface = await applyChannel.send({
             embeds: [
               new MessageEmbed()
                 .setColor(color.gray)
@@ -130,7 +131,7 @@ module.exports = async (client, config) => {
             `\x1b[31m ${interaction.user.username}`,
             `\x1b[32m SETUP MAINTENANCE MODE`,
           );
-          return await interaction.editReply({
+          await interaction.editReply({
             embeds: [
               {
                 title: `${emojis.check} Maintenance Interface`,
@@ -142,6 +143,42 @@ module.exports = async (client, config) => {
             ephemeral: true,
             components: [],
           });
+          const existingInterfaceData = await UI.findOne({
+            guildId: interaction.guild.id,
+            channelId: applyChannel.id,
+          });
+
+          if (existingInterfaceData) {
+            // If entry exists, update its properties
+            existingInterfaceData.embedId = userInterface.id;
+
+            try {
+              // Save the updated entry back to the database
+              await existingInterfaceData.save();
+            } catch (error) {
+              console.error(
+                "Error updating application information:",
+                error.message,
+              );
+            }
+          } else {
+            // If entry does not exist, create a new entry
+            const interfaceData = new UI({
+              guildId: interaction.guild.id,
+              channelId: applyChannel.id,
+              embedId: userInterface.id,
+            });
+
+            try {
+              // Save the new entry to the database
+              await interfaceData.save();
+            } catch (error) {
+              console.error(
+                "Error saving application information:",
+                error.message,
+              );
+            }
+          }
         } else {
           console.log(
             `\x1b[0m`,

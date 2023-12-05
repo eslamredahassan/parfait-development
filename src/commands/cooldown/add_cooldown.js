@@ -1,7 +1,6 @@
-const { MessageEmbed } = require("discord.js");
+const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
 const moment = require("moment");
-
-const TemporaryRole = require("../../../src/database/models/TemporaryRoleModel");
+const Cooldown = require("../../../src/database/models/CooldownModel");
 const color = require("../../../src/assest/color.js");
 const banners = require("../../../src/assest/banners.js");
 const emojis = require("../../../src/assest/emojis");
@@ -45,134 +44,234 @@ module.exports = async (client, config) => {
                 break;
             }
 
-            const existingRole = await TemporaryRole.findOne({
+            const existingRole = await Cooldown.findOne({
               userId: member.id,
             });
 
             if (!existingRole) {
-              await memberTarget.roles.add(config.coolDown);
-
-              await TemporaryRole.create({
-                userId: memberTarget.id,
-                guildId: guild.id,
-                roleId: config.coolDown,
-                expiry: expiryDate,
-              });
-
-              // Send a DM to the user with the cooldown's end date
-              await memberTarget.send({
-                embeds: [
-                  new MessageEmbed()
-                    .setColor(color.gray)
-                    .setTitle(`${emojis.warning} Warning!`)
-                    .setDescription(
-                      `${emojis.threadMark} Staff member added a cooldown period to you.`,
-                    )
-                    .addFields(
-                      {
-                        name: `${emojis.lastUpdate} Cooldown Duration Ends`,
-                        value: `${emojis.threadMark} <t:${Math.floor(
-                          expiryDate / 1000,
-                        )}:R>`,
-                        inline: false,
-                      },
-                      {
-                        name: `${emojis.warning} Reason`,
-                        value: `${emojis.threadMark} ${reason}`,
-                        inline: false,
-                      },
-                    ),
-                ],
-              });
-              console.log(
-                `\x1b[0m`,
-                `\x1b[33m 〢`,
-                `\x1b[33m ${moment(Date.now()).format("LT")}`,
-                `\x1b[31m ${interaction.user.username}`,
-                `\x1b[32m added cooldown to`,
-                `\x1b[35m ${memberTarget.user.username}`,
-                `\x1b[33m ends ${moment(expiryDate).fromNow()}`,
+              // Create confirmation buttons
+              const row = new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setCustomId("#confirm")
+                  .setLabel(
+                    `Confirm adding cooldown to ${memberTarget.user.username}`,
+                  )
+                  .setStyle(2)
+                  .setEmoji(emojis.check),
+                new MessageButton()
+                  .setCustomId("#cancel")
+                  .setLabel("Cancel")
+                  .setStyle(2)
+                  .setEmoji(emojis.cross),
               );
-              const log = interaction.guild.channels.cache.get(config.log);
-              await log.send({
-                embeds: [
-                  {
-                    title: `${emojis.log} Cooldown Add Log`,
-                    description: `${emojis.snow} ${interaction.user} added cooldown to ${memberTarget}`,
-                    color: color.gray,
-                    fields: [
-                      {
-                        name: `${emojis.reason} Cooldown Reason`,
-                        value: `${emojis.threadMark} ${reason}`,
-                        inline: false,
-                      },
-                      {
-                        name: `${emojis.lastUpdate} End Date`,
-                        value: `${emojis.threadMark} <t:${Math.floor(
-                          expiryDate / 1000,
-                        )}:R> ${emojis.pinkDot} <t:${Math.floor(
-                          expiryDate / 1000,
-                        )}:F>`,
-                        inline: false,
-                      },
-                    ],
-                    timestamp: new Date(),
-                    footer: {
-                      text: "Cooldown was added in",
-                      icon_url: banners.parfaitIcon,
-                    },
-                  },
-                ],
-                //this is the important part
-                ephemeral: false,
-              });
 
               await interaction.editReply({
                 embeds: [
                   {
-                    title: `${emojis.check} Cooldown Added!`,
-                    description: `${
-                      emojis.threadMarkmid
-                    } The cooldown has been added to ${memberTarget}\n${
-                      emojis.threadMark
-                    } The cooldown period ends <t:${Math.floor(
-                      expiryDate / 1000,
-                    )}:R> <t:${Math.floor(expiryDate / 1000)}:f>`,
+                    title: `${emojis.warning} Warning!`,
+                    description: `${emojis.threadMark} Are you sure you wants to add ${duration} ${durationType} cooldown to ${memberTarget}?`,
                     color: color.gray,
                   },
                 ],
+                components: [row],
                 ephemeral: true,
+              });
+
+              const filter = (i) =>
+                i.customId === "#confirm" || i.customId === "#cancel";
+
+              const collector =
+                interaction.channel.createMessageComponentCollector({
+                  filter,
+                  time: 30 * 1000, // Adjust the time as needed
+                });
+
+              collector.on("collect", async (i) => {
+                collector.stop();
+
+                if (i.customId === "#confirm") {
+                  try {
+                    await memberTarget.roles.add(config.coolDown);
+
+                    await Cooldown.create({
+                      userId: memberTarget.id,
+                      guildId: guild.id,
+                      roleId: config.coolDown,
+                      expiry: expiryDate,
+                    });
+
+                    await memberTarget.send({
+                      embeds: [
+                        new MessageEmbed()
+                          .setColor(color.gray)
+                          .setTitle(`${emojis.warning} Warning!`)
+                          .setDescription(
+                            `${emojis.threadMark} Staff member added a cooldown period to you.`,
+                          )
+                          .addFields(
+                            {
+                              name: `${emojis.lastUpdate} Cooldown Duration Ends`,
+                              value: `${emojis.threadMark} <t:${Math.floor(
+                                expiryDate / 1000,
+                              )}:R>`,
+                              inline: false,
+                            },
+                            {
+                              name: `${emojis.warning} Reason`,
+                              value: `${emojis.threadMark} ${reason}`,
+                              inline: false,
+                            },
+                          ),
+                      ],
+                    });
+
+                    const log = interaction.guild.channels.cache.get(
+                      config.log,
+                    );
+                    await log.send({
+                      embeds: [
+                        {
+                          title: `${emojis.log} Cooldown Add Log`,
+                          description: `${emojis.snow} ${interaction.user} added cooldown to ${memberTarget}`,
+                          color: color.gray,
+                          fields: [
+                            {
+                              name: `${emojis.reason} Cooldown Reason`,
+                              value: `${emojis.threadMark} ${reason}`,
+                              inline: false,
+                            },
+                            {
+                              name: `${emojis.lastUpdate} End Date`,
+                              value: `${emojis.threadMark} <t:${Math.floor(
+                                expiryDate / 1000,
+                              )}:R> ${emojis.pinkDot} <t:${Math.floor(
+                                expiryDate / 1000,
+                              )}:F>`,
+                              inline: false,
+                            },
+                          ],
+                          timestamp: new Date(),
+                          footer: {
+                            text: "Cooldown was added in",
+                            icon_url: banners.parfaitIcon,
+                          },
+                        },
+                      ],
+                      ephemeral: false,
+                      components: [],
+                    });
+
+                    await interaction.editReply({
+                      embeds: [
+                        {
+                          title: `${emojis.check} Cooldown Added!`,
+                          description: `${
+                            emojis.threadMarkmid
+                          } The cooldown has been added to ${memberTarget}\n${
+                            emojis.threadMark
+                          } The cooldown period ends <t:${Math.floor(
+                            expiryDate / 1000,
+                          )}:R> <t:${Math.floor(expiryDate / 1000)}:f>`,
+                          color: color.gray,
+                        },
+                      ],
+                      ephemeral: true,
+                      components: [],
+                    });
+                  } catch (error) {
+                    console.error(
+                      "Error giving temporary role:",
+                      error.message,
+                    );
+                    await interaction.editReply({
+                      embeds: [
+                        {
+                          title: `${emojis.warning} Oops!`,
+                          description: `${emojis.threadMark} An error occurred while giving the cooldown.`,
+                          color: color.gray,
+                        },
+                      ],
+                      ephemeral: true,
+                      components: [],
+                    });
+                  }
+                } else {
+                  await interaction.editReply({
+                    embeds: [
+                      {
+                        title: `${emojis.warning} Cancelled!`,
+                        description: `${emojis.threadMark} The Cooldown addition canceled.`,
+                        color: color.gray,
+                      },
+                    ],
+                    ephemeral: true,
+                    components: [],
+                  });
+                }
+              });
+
+              collector.on("end", (collected, reason) => {
+                if (reason === "time") {
+                  interaction.editReply({
+                    embeds: [
+                      {
+                        title: `${emojis.warning} Cancelled!`,
+                        description: `${emojis.threadMark} Confirmation timeout. Cooldown addition canceled.`,
+                        color: color.gray,
+                      },
+                    ],
+                    ephemeral: true,
+                    components: [],
+                  });
+                }
               });
             }
           } catch (error) {
             console.error("Error giving temporary role:", error.message);
             await interaction.editReply({
-              content: "An error occurred while giving the temporary role.",
+              embeds: [
+                {
+                  title: `${emojis.warning} Cancelled!`,
+                  description: `${emojis.threadMark} An error occurred while giving the cooldown.`,
+                  color: color.gray,
+                },
+              ],
               ephemeral: true,
+              components: [],
             });
           }
         } else {
-          const existingRole = await TemporaryRole.findOne({
+          const existingRole = await Cooldown.findOne({
             userId: memberTarget.id,
           });
           const duration = existingRole.expiry;
           await interaction.editReply({
             embeds: [
               {
-                title: `${emojis.snow} Oops!`,
-                description: `${memberTarget} is already in cooldown period that ends <t:${Math.floor(
+                title: `${emojis.warning} Oops!`,
+                description: `${
+                  emojis.threadMark
+                } ${memberTarget} is already in a cooldown period that ends <t:${Math.floor(
                   duration / 1000,
                 )}:R>`,
                 color: color.gray,
               },
             ],
             ephemeral: true,
+            components: [],
           });
         }
       } else {
         await interaction.editReply({
-          content: errors.permsError,
+          embeds: [
+            {
+              title: `${emojis.warning} Permission Denied!`,
+              description: errors.permsError,
+              color: color.gray,
+            },
+          ],
           ephemeral: true,
+          components: [],
         });
         console.log(
           `\x1b[0m`,
