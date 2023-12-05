@@ -32,8 +32,8 @@ module.exports = async (client, config) => {
                   `📝` +
                   counterValue +
                   " Applications Received " +
-                  `| 👤 ${tryout.members.size} Players In Tryout ` +
-                  `| 👥 ${squad.members.size} Squad SUN`,
+                  `  👤 ${tryout.members.size} Players In Tryout ` +
+                  `  👥 ${squad.members.size} Squad SUN`,
                 iconURL: client.user.displayAvatarURL({ dynamic: true }),
               });
               message.edit({ embeds: [newEmbed] });
