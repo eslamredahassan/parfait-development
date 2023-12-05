@@ -31,8 +31,8 @@ module.exports = async (client, config) => {
                 text:
                   `📝` +
                   counterValue +
-                  " Applications Received  " +
-                  `| 👤 ${tryout.members.size} Players In Tryout  ` +
+                  " Applications Received " +
+                  `| 👤 ${tryout.members.size} Players In Tryout ` +
                   `| 👥 ${squad.members.size} Squad SUN`,
                 iconURL: client.user.displayAvatarURL({ dynamic: true }),
               });

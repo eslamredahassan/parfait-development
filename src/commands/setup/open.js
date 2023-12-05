@@ -12,7 +12,6 @@ const errors = require("../../assest/errors.js");
 const banners = require("../../assest/banners.js");
 const color = require("../../assest/color.js");
 const emojis = require("../../assest/emojis");
-const Counter = require("../../../src/database/models/counter");
 const UI = require("../../../src/database/models/userInterface");
 
 module.exports = async (client, config) => {
@@ -77,8 +76,6 @@ module.exports = async (client, config) => {
               .setLabel(" ")
               .setEmoji(emojis.more),
           ]);
-          const counter = await Counter.findOne();
-          const counterValue = counter ? counter.count : 0;
           const perms = [`${config.devRole}`, `${config.devRoleTest}`];
           let staff = guild.members.cache.get(interaction.user.id);
           if (staff.roles.cache.hasAny(...perms)) {
@@ -103,14 +100,7 @@ module.exports = async (client, config) => {
                       value: fieldsText.level,
                       inline: true,
                     },
-                  ])
-                  .setFooter({
-                    text:
-                      "Total applied for Sun Legends " +
-                      counterValue +
-                      " applications",
-                    iconURL: banners.parfaitIcon,
-                  }),
+                  ]),
               ],
               components: [buttons],
             });
