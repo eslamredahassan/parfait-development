@@ -31,7 +31,13 @@ client.on("ready", async () => {
   // Read all files in the directory
   fs.readdir(databseDirectory, (error, files) => {
     if (error) {
-      console.error("Error reading select menu directory:", error.message);
+      console.error(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error while reading database directory:`,
+        `\x1b[35m$ ${error.message}`,
+      );
       return;
     }
     files.forEach((file) => {
@@ -47,7 +53,13 @@ client.on("ready", async () => {
   // Read all files in the directory
   fs.readdir(selectMenuDirectory, (error, files) => {
     if (error) {
-      console.error("Error reading select menu directory:", error.message);
+      console.error(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error while reading select menu directory:`,
+        `\x1b[35m$ ${error.message}`,
+      );
       return;
     }
     files.forEach((file) => {
@@ -63,7 +75,13 @@ client.on("ready", async () => {
   // Read all files in the directory
   fs.readdir(eventsDirectory, (error, files) => {
     if (error) {
-      console.error("Error reading select menu directory:", error.message);
+      console.error(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error while reading events directory:`,
+        `\x1b[35m$ ${error.message}`,
+      );
       return;
     }
     files.forEach((file) => {
@@ -85,14 +103,6 @@ client.on("ready", async () => {
     `\x1b[33m ${moment(Date.now()).format("LT")}`,
     `\x1b[31m ${client.user.tag}`,
     `\x1b[32m ONLINE`,
-  );
-
-  console.log(
-    `\x1b[0m`,
-    `\x1b[33m 〢`,
-    `\x1b[33m ${moment(Date.now()).format("LT")}`,
-    `\x1b[31m SUN™&Co Smash Legends`,
-    `\x1b[32m CHECKED`,
   );
 });
 
@@ -118,7 +128,13 @@ client.once("ready", async () => {
   const buttonsDirectory = path.join(__dirname, "src/buttons");
   fs.readdir(buttonsDirectory, (error, files) => {
     if (error) {
-      console.error("Error reading buttons directory:", error.message);
+      console.error(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error while reading slash commands directory:`,
+        `\x1b[35m$ ${error.message}`,
+      );
       return;
     }
     files.forEach((file) => {
@@ -130,4 +146,14 @@ client.once("ready", async () => {
     });
   });
 });
-client.login(config.token).catch((error) => ("Error:", error.message));
+client
+  .login(config.token)
+  .catch((error) =>
+    console.error(
+      `\x1b[0m`,
+      `\x1b[33m 〢`,
+      `\x1b[33m ${moment(Date.now()).format("LT")}`,
+      `\x1b[31m Error while reading events directory:`,
+      `\x1b[35m$ ${error.message}`,
+    ),
+  );
