@@ -1,14 +1,16 @@
 const { MessageEmbed } = require("discord.js");
+const packageJSON = require("../../package");
+const fs = require("fs");
 
 const os = require("os");
 const moment = require("moment");
 const mongoose = require("mongoose");
 const wait = require("util").promisify(setTimeout);
 
-const packageJSON = require("../../package");
-const banners = require("../assest/banners.js");
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
@@ -122,7 +124,7 @@ module.exports = async (client, config) => {
         console.log(
           `\x1b[0m`,
           `\x1b[33m 〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
           `\x1b[31m ${interaction.user.username}`,
           `\x1b[33m USED`,
           `\x1b[35m Status command`,
@@ -131,7 +133,7 @@ module.exports = async (client, config) => {
         console.error(
           `\x1b[0m`,
           `\x1b[33m 〢`,
-          `\x1b[33m ${moment(Date.now()).format("lll")}`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
           `\x1b[31m Error in status command:`,
           `\x1b[35m ${error.message}`,
         );

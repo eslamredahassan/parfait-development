@@ -91,12 +91,12 @@ module.exports = async (client, config) => {
                   .setImage(banners.openBanner)
                   .addFields([
                     {
-                      name: `${emojis.r_rank} Required Rank`,
+                      name: `${emojis.r_rank} Minimum Rank`,
                       value: fieldsText.rank,
                       inline: true,
                     },
                     {
-                      name: `${emojis.r_level} Required Level`,
+                      name: `${emojis.r_level} Minimum Level`,
                       value: fieldsText.level,
                       inline: true,
                     },

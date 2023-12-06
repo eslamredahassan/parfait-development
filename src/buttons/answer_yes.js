@@ -54,9 +54,9 @@ module.exports = async (client, config) => {
           });
         } else {
           console.log(
-            `\x1b[31m  〢`,
-            `\x1b[33m ${moment(Date.now()).format("lll")}`,
-            `\x1b[34m ${interaction.user.username} ANSWERED`,
+            `\x1b[33m  〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username} ANSWERED`,
             `\x1b[35m Yes`,
           );
 
@@ -110,6 +110,7 @@ module.exports = async (client, config) => {
       interaction.isSelectMenu() &&
       interaction.customId === "#answer_yes_menu"
     ) {
+      await interaction.deferUpdate({ ephemeral: true });
       let choices = interaction.values;
       if (choices && choices.length > 0) {
         for (let choice of choices) {
@@ -124,7 +125,8 @@ module.exports = async (client, config) => {
             ]);
 
             console.log(
-              `\x1b[0m``\x1b[33m 〢`,
+              `\x1b[0m`,
+              `\x1b[33m 〢`,
               `\x1b[33m ${moment(Date.now()).format("LT")}`,
               `\x1b[31m ${interaction.user.username} CHOOSED`,
               `\x1b[35m English Europ`,
