@@ -30,6 +30,7 @@ const getLanguageName = (code) => {
 
 module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
+    let guild = client.guilds.cache.get(config.guildID);
     if (
       interaction.isContextMenu() &&
       interaction.commandName === "Translate"
@@ -39,88 +40,111 @@ module.exports = async (client, config) => {
         const message = await interaction.channel.messages.fetch(
           interaction.targetId,
         );
-        const textToTranslate = message.content;
+        const roles = [
+          config.SunTest,
+          config.SquadSUN,
+          config.TeamSun,
+          config.devRole,
+          config.STAFF,
+        ];
+        let user = guild.members.cache.get(interaction.user.id);
+        if (!user.roles.cache.hasAny(...roles)) {
+          interaction.editReply({
+            embeds: [
+              new MessageEmbed()
+                .setColor(color.gray)
+                .setTitle(`${emojis.warning} Oops!`)
+                .setDescription(
+                  `${emojis.threadMark} This feature is only exclusive to Sun Members.`,
+                ),
+            ],
+            ephemeral: true,
+            components: [],
+          });
+        } else {
+          const textToTranslate = message.content;
 
-        // Detect the original language
-        const detectedResult = detect(textToTranslate);
-        const originalLanguage = detectedResult[0].lang;
+          // Detect the original language
+          const detectedResult = detect(textToTranslate);
+          const originalLanguage = detectedResult[0].lang;
 
-        console.info(
-          `\x1b[0m`,
-          `\x1b[33m 〢`,
-          `\x1b[33m ${moment(Date.now()).format("LT")}`,
-          `\x1b[31m ${interaction.user.username}`,
-          `\x1b[32m Translated: ${textToTranslate}`,
-        );
+          console.info(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m ${interaction.user.username}`,
+            `\x1b[32m Translated: ${textToTranslate}`,
+          );
 
-        // Filter out the original language from supported languages
-        const languages = supportedLanguages
-          .filter((lang) => lang.code !== originalLanguage.toLowerCase())
-          .map((lang) => lang.code);
+          // Filter out the original language from supported languages
+          const languages = supportedLanguages
+            .filter((lang) => lang.code !== originalLanguage.toLowerCase())
+            .map((lang) => lang.code);
 
-        const translations = [];
+          const translations = [];
 
-        for (const lang of languages) {
-          if (translations.length !== 0) {
-            await delay(1000);
-          }
+          for (const lang of languages) {
+            if (translations.length !== 0) {
+              await delay(1000);
+            }
 
-          try {
-            const text = await translate(textToTranslate, {
-              to: lang,
-              from: originalLanguage.toLowerCase(),
-            });
+            try {
+              const text = await translate(textToTranslate, {
+                to: lang,
+                from: originalLanguage.toLowerCase(),
+              });
 
-            // Check if the translation result is a string
-            if (typeof text === "string") {
-              translations.push({ lang, translation: text });
-            } else {
+              // Check if the translation result is a string
+              if (typeof text === "string") {
+                translations.push({ lang, translation: text });
+              } else {
+                console.error(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Unexpected translation result:`,
+                  `\x1b[32m ${text}`,
+                );
+                // You can choose to handle the unexpected result differently
+                // For now, we continue with the next translation
+                continue;
+              }
+            } catch (translationError) {
               console.error(
                 `\x1b[0m`,
                 `\x1b[33m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("LT")}`,
-                `\x1b[31m Unexpected translation result:`,
-                `\x1b[32m ${text}`,
+                `\x1b[31m Translation Error for ${lang}`,
+                `\x1b[32m ${translationError.message}`,
               );
-              // You can choose to handle the unexpected result differently
-              // For now, we continue with the next translation
-              continue;
+              // Handle translation error as needed
             }
-          } catch (translationError) {
-            console.error(
-              `\x1b[0m`,
-              `\x1b[33m 〢`,
-              `\x1b[33m ${moment(Date.now()).format("LT")}`,
-              `\x1b[31m Translation Error for ${lang}`,
-              `\x1b[32m ${translationError.message}`,
-            );
-            // Handle translation error as needed
           }
-        }
 
-        if (translations.length === 0) {
-          // If there are no translations, reply with an error message
-          await interaction.editReply({
-            embeds: [
-              new MessageEmbed()
-                .setTitle(`${emojis.warning} Oops!`)
-                .setDescription(
-                  `${emojis.threadMark} Failed to translate. Please provide valid text."`,
-                )
-                .setColor(color.gray),
-            ],
-            ephemeral: true,
-          });
-        } else {
-          const embeds = translations.map((translation) => {
-            const embed = new MessageEmbed()
-              .setTitle(`${getLanguageName(translation.lang)}`)
-              .setDescription(translation.translation)
-              .setColor(color.gray);
-            return embed;
-          });
+          if (translations.length === 0) {
+            // If there are no translations, reply with an error message
+            await interaction.editReply({
+              embeds: [
+                new MessageEmbed()
+                  .setTitle(`${emojis.warning} Oops!`)
+                  .setDescription(
+                    `${emojis.threadMark} Failed to translate. Please provide valid text."`,
+                  )
+                  .setColor(color.gray),
+              ],
+              ephemeral: true,
+            });
+          } else {
+            const embeds = translations.map((translation) => {
+              const embed = new MessageEmbed()
+                .setTitle(`${getLanguageName(translation.lang)}`)
+                .setDescription(translation.translation)
+                .setColor(color.gray);
+              return embed;
+            });
 
-          await interaction.editReply({ embeds: embeds, ephemeral: true });
+            await interaction.editReply({ embeds: embeds, ephemeral: true });
+          }
         }
       } catch (error) {
         console.error(

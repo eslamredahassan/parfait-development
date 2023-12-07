@@ -30,6 +30,22 @@ module.exports = async (client, config) => {
         const userId = interaction.targetId;
 
         try {
+          // Check if the user is a bot
+          const isBot = client.users.cache.get(userId)?.bot;
+
+          if (isBot) {
+            interaction.editReply({
+              embeds: [
+                {
+                  title: `${emojis.warning} Huh?!`,
+                  description: `${emojis.threadMark} You can't view the application of a bot.`,
+                  color: color.gray,
+                },
+              ],
+              ephemeral: true,
+            });
+            return;
+          }
           // Check if the command was triggered by the bot itself
           const isTargetingBot = userId === client.user.id;
 

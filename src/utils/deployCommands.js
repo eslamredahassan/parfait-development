@@ -57,11 +57,15 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
-          name: "User info",
+          name: "Info",
           type: 2,
         },
         {
           name: "Application",
+          type: 2,
+        },
+        {
+          name: "Report",
           type: 2,
         },
         {

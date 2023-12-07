@@ -11,10 +11,7 @@ const Application = require("../../src/database/models/application");
 
 module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
-    if (
-      interaction.isContextMenu() &&
-      interaction.commandName === "User info"
-    ) {
+    if (interaction.isContextMenu() && interaction.commandName === "Info") {
       try {
         await interaction.deferReply({ ephemeral: true });
         const targetUser = await client.users.fetch(interaction.targetId);

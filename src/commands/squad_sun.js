@@ -14,7 +14,6 @@ module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "squad_sun") {
       await interaction.deferReply({ ephemeral: true });
-
       try {
         console.log(
           `\x1b[0m`,
