@@ -1,10 +1,14 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require("discord.js");
 const moment = require("moment");
+const fs = require("fs");
+
 const Application = require("../../src/database/models/application");
 const errors = require("../../src/assest/errors.js");
-const banners = require("../assest/banners.js");
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
+
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
 
 module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
@@ -47,9 +51,16 @@ module.exports = async (client, config) => {
           const application = await Application.findOne(filter);
 
           if (!application) {
-            interaction.editReply(
-              `I didn't find any application for \`\`${userId}\`\` in my database.`,
-            );
+            interaction.editReply({
+              embeds: [
+                {
+                  title: `${emojis.warning} No application found`,
+                  description: `${emojis.threadMark} ${app_user} has no application in my database or his application is missing.`,
+                  color: color.gray,
+                },
+              ],
+              ephemeral: true,
+            });
             return;
           }
 
@@ -60,7 +71,7 @@ module.exports = async (client, config) => {
               icon_url: app_user.displayAvatarURL(),
             },
             color: color.gray,
-            description: ` `,
+            //description: ` `,
             image: { url: banners.appResultBanner },
             thumbnail: { url: banners.appResultIcon },
             fields: [
@@ -133,9 +144,21 @@ module.exports = async (client, config) => {
             ephemeral: true,
           });
         } catch (error) {
-          console.error("Error fetching data:", error.message);
+          console.log(
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error fetching data:`,
+            `\x1b[34m ${error.message}`,
+          );
           interaction.editReply({
-            content: "Error fetching data. Please try again later.",
+            embeds: [
+              {
+                title: `${emojis.warning} Oops!`,
+                description: `${emojis.threadMark} Something went wrong while fetching ${app_user}'s application.`,
+                color: color.gray,
+              },
+            ],
             ephemeral: true,
           });
         }
@@ -152,7 +175,7 @@ module.exports = async (client, config) => {
         });
         console.log(
           `\x1b[0m`,
-          `\x1b[31m 🛠`,
+          `\x1b[33m 〢`,
           `\x1b[33m ${moment(Date.now()).format("lll")}`,
           `\x1b[31m Permission denied`,
         );

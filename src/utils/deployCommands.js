@@ -65,6 +65,10 @@ module.exports = async (client, config) => {
           type: 2,
         },
         {
+          name: "Translate",
+          type: 3,
+        },
+        {
           name: "echo",
           description: `[Dev] Parfait will send your message`,
           options: [
