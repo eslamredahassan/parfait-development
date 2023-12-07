@@ -57,6 +57,14 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
+          name: "User info",
+          type: 2,
+        },
+        {
+          name: "Application",
+          type: 2,
+        },
+        {
           name: "echo",
           description: `[Dev] Parfait will send your message`,
           options: [

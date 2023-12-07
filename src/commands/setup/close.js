@@ -201,7 +201,7 @@ module.exports = async (client, config) => {
           components: [],
         });
       }
-    } else if (interaction.customId === "#close") {
+    } else if (interaction.customId === "x#close") {
       try {
         const Messages = [
           `${responses.lazy}`,

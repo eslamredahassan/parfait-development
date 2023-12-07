@@ -198,7 +198,7 @@ module.exports = async (client, config) => {
           components: [],
         });
       }
-    } else if (interaction.isButton() && interaction.customId === "#open") {
+    } else if (interaction.isButton() && interaction.customId === "x#open") {
       try {
         const Messages = [
           `${responses.lazy}`,
