@@ -92,6 +92,29 @@ client.on("ready", async () => {
       }
     });
   });
+
+  // The directory where your select menu files are stored
+  const contextMenuDirectory = path.join(__dirname, "src/context menu");
+  // Read all files in the directory
+  fs.readdir(contextMenuDirectory, (error, files) => {
+    if (error) {
+      console.error(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error while reading context menu directory:`,
+        `\x1b[35m$ ${error.message}`,
+      );
+      return;
+    }
+    files.forEach((file) => {
+      if (file.endsWith(".js")) {
+        const contextMenuPath = path.join(contextMenuDirectory, file);
+        const contextMenu = require(contextMenuPath);
+        contextMenu(client, config);
+      }
+    });
+  });
   // ------------ Interactions ------------ //
   const questions = require(`./src/interaction/questions`)(client, config);
   const qna = require(`./src/interaction/qna`)(client, config);
