@@ -1,6 +1,8 @@
 const { MessageEmbed } = require("discord.js");
 const { detect } = require("langdetect");
+
 const translate = require("translate-google");
+const moment = require("moment");
 const fs = require("fs");
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
@@ -32,9 +34,8 @@ module.exports = async (client, config) => {
       interaction.isContextMenu() &&
       interaction.commandName === "Translate"
     ) {
-      await interaction.deferReply({ ephemeral: true });
-
       try {
+        await interaction.deferReply({ ephemeral: true });
         const message = await interaction.channel.messages.fetch(
           interaction.targetId,
         );
@@ -43,6 +44,14 @@ module.exports = async (client, config) => {
         // Detect the original language
         const detectedResult = detect(textToTranslate);
         const originalLanguage = detectedResult[0].lang;
+
+        console.info(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m ${interaction.user.username}`,
+          `\x1b[32m Translated: ${textToTranslate}`,
+        );
 
         // Filter out the original language from supported languages
         const languages = supportedLanguages
@@ -66,15 +75,24 @@ module.exports = async (client, config) => {
             if (typeof text === "string") {
               translations.push({ lang, translation: text });
             } else {
-              console.error("Unexpected translation result:", text);
+              console.error(
+                `\x1b[0m`,
+                `\x1b[33m 〢`,
+                `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                `\x1b[31m Unexpected translation result:`,
+                `\x1b[32m ${text}`,
+              );
               // You can choose to handle the unexpected result differently
               // For now, we continue with the next translation
               continue;
             }
           } catch (translationError) {
             console.error(
-              `Translation Error for ${lang}:`,
-              translationError.message,
+              `\x1b[0m`,
+              `\x1b[33m 〢`,
+              `\x1b[33m ${moment(Date.now()).format("LT")}`,
+              `\x1b[31m Translation Error for ${lang}`,
+              `\x1b[32m ${translationError.message}`,
             );
             // Handle translation error as needed
           }
@@ -83,7 +101,14 @@ module.exports = async (client, config) => {
         if (translations.length === 0) {
           // If there are no translations, reply with an error message
           await interaction.editReply({
-            content: "Failed to translate. Please provide valid text.",
+            embeds: [
+              new MessageEmbed()
+                .setTitle(`${emojis.warning} Oops!`)
+                .setDescription(
+                  `${emojis.threadMark} Failed to translate. Please provide valid text."`,
+                )
+                .setColor(color.gray),
+            ],
             ephemeral: true,
           });
         } else {
@@ -98,17 +123,37 @@ module.exports = async (client, config) => {
           await interaction.editReply({ embeds: embeds, ephemeral: true });
         }
       } catch (error) {
-        console.error("Translation Error:", error);
+        console.error(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Translation Error`,
+          `\x1b[32m ${error.message}`,
+        );
 
         if (error.code === "BAD_REQUEST") {
           console.error("Request details:", error.request);
           await interaction.editReply({
-            content: "Failed to translate. Please provide valid text.",
+            embeds: [
+              new MessageEmbed()
+                .setTitle(`${emojis.warning} Oops!`)
+                .setDescription(
+                  `${emojis.threadMark} Failed to translate. Please provide valid text."`,
+                )
+                .setColor(color.gray),
+            ],
             ephemeral: true,
           });
         } else {
           await interaction.editReply({
-            content: "Error fetching data. Please try again later.",
+            embeds: [
+              new MessageEmbed()
+                .setTitle(`${emojis.warning} Oops!`)
+                .setDescription(
+                  `${emojis.threadMark} Something went wrong while translating. Please try again later.`,
+                )
+                .setColor(color.gray),
+            ],
             ephemeral: true,
           });
         }
