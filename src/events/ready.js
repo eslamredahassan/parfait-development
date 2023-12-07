@@ -10,6 +10,10 @@ module.exports = async (client, config) => {
   const counter = await Counter.findOne();
   const counterValue = counter ? counter.count : 0;
 
+  const guild = client.guilds.cache.get(config.guildID);
+  const squad = guild.roles.cache.get(config.SquadSUN);
+  const tryout = guild.roles.cache.get(config.waitRole);
+
   let membersCount = client.guilds.cache
     .map((guild) => guild.memberCount)
     .reduce((a, b) => a + b, 0);
@@ -21,7 +25,17 @@ module.exports = async (client, config) => {
     },
     {
       type: "WATCHING",
-      content: `${counterValue} applications`,
+      content: `${counterValue} Applications`,
+      status: "idle",
+    },
+    {
+      type: "WATCHING",
+      content: `${tryout.members.size} Tryouts`,
+      status: "idle",
+    },
+    {
+      type: "PLAYING",
+      content: `With ${squad.members.size} Sun Members`,
       status: "idle",
     },
   ];
@@ -42,7 +56,7 @@ module.exports = async (client, config) => {
       console.error(error);
     }
   }
-  setInterval(pickPresence, 50000);
+  setInterval(pickPresence, 30 * 1000);
   console.log(
     `\x1b[0m`,
     `\x1b[33m 〢`,

@@ -5,6 +5,7 @@ const fs = require("fs");
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
 const emojis = settings.emojis;
+const banners = settings.banners;
 
 const Application = require("../../src/database/models/application");
 
@@ -37,6 +38,7 @@ module.exports = async (client, config) => {
         const userID = targetUser.id || "N/A";
         const hasApplication = userApplication !== null; // Check if the user has an application
         const userAge = hasApplication ? userApplication.user_age : "N/A";
+        const userCode = hasApplication ? userApplication.user_code : "N/A";
         const applicationID = hasApplication
           ? userApplication.application
           : "N/A";
@@ -58,23 +60,6 @@ module.exports = async (client, config) => {
           })
           .join("\n");
 
-        let statusEmoji;
-        switch (member.presence?.status) {
-          case "online":
-            statusEmoji = "🟢 Online";
-            break;
-          case "idle":
-            statusEmoji = "🌙 Idle";
-            break;
-          case "dnd":
-            statusEmoji = "🔴 DND";
-            break;
-          case "offline":
-            statusEmoji = "⚫ Offline";
-            break;
-          default:
-            statusEmoji = "⚫ Offline";
-        }
         const userBanner = targetUser.banner;
         const userBannerURL = userBanner
           ? targetUser.bannerURL({ format: "png", size: 4096 })
@@ -82,57 +67,66 @@ module.exports = async (client, config) => {
         // Create the embed
         const embed = new MessageEmbed()
           .setColor(color.gray)
-          .setTitle("User Information")
+          //.setTitle("User Information")
           .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
-          .setImage(userBannerURL || "")
+          .setImage(userBannerURL || banners.appResultBanner)
           .addFields(
             {
-              name: "Username",
-              value: username,
-              inline: true,
-            },
-            {
-              name: "Age",
-              value: hasApplication ? `${userAge}` : "N/A",
-              inline: true,
-            },
-            {
-              name: "Status",
-              value: statusEmoji,
-              inline: true,
+              name: `${emojis.discord} Discord`,
+              value: `${emojis.threadMarkmid} ${member.user}\n${
+                emojis.threadMark
+              } AKA ${member.nickname || "N/A"}\n ${
+                emojis.time
+              } Account Created: <t:${Math.floor(
+                targetUser.createdAt / 1000,
+              )}:R>`,
+              inline: false,
             },
             {
               name: "Roles",
-              value: mentionedRoles || "No roles",
+              value: mentionedRoles || `${emojis.threadMark} No roles`,
               inline: false,
             },
             {
-              name: "Account Created",
-              value: `<t:${Math.floor(targetUser.createdAt / 1000)}:R>`,
+              name: `${emojis.age} Age`,
+              value: hasApplication
+                ? `${emojis.threadMark} ${userAge}`
+                : `${emojis.threadMark} N/A`,
               inline: false,
             },
             {
-              name: `Joined ${interaction.guild.name}`,
-              value: `<t:${Math.floor(member.joinedAt / 1000)}:F>`,
+              name: `${emojis.id} Smash Code`,
+              value: hasApplication
+                ? `${emojis.threadMark} ||${userCode}||`
+                : `${emojis.threadMark} ||N/A||`,
               inline: false,
             },
             {
-              name: "Has Application",
-              value: hasApplication ? "Yes" : "No",
+              name: `${emojis.time} Account Created`,
+              value: `${emojis.threadMark} <t:${Math.floor(
+                targetUser.createdAt / 1000,
+              )}:R>`,
+              inline: false,
+            },
+            {
+              name: `${emojis.time} Joined ${interaction.guild.name}`,
+              value: `${emojis.threadMark} <t:${Math.floor(
+                member.joinedAt / 1000,
+              )}:F>`,
               inline: false,
             },
             // Conditionally add these fields based on whether the user has an application
             ...(hasApplication
               ? [
                   {
-                    name: "User Application",
-                    value: `https://discord.com/channels/${config.guildID}/${config.finishChannel}/${applicationID}`,
-                    inline: true,
+                    name: `${emojis.app} Application`,
+                    value: `${emojis.threadMark} https://discord.com/channels/${config.guildID}/${config.finishChannel}/${applicationID}`,
+                    inline: false,
                   },
                   {
-                    name: "Tryout thread",
-                    value: `<#${threadID}>`,
-                    inline: true,
+                    name: `${emojis.thread} Tryout thread`,
+                    value: `${emojis.threadMark} <#${threadID}>`,
+                    inline: false,
                   },
                 ]
               : []),
@@ -141,7 +135,7 @@ module.exports = async (client, config) => {
                   {
                     name: "\u200B",
                     value: "**User Banner**", // Adding a zero-width space to ensure the field has some content
-                    inline: true,
+                    inline: false,
                   },
                 ]
               : []),

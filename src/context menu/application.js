@@ -30,6 +30,24 @@ module.exports = async (client, config) => {
         const userId = interaction.targetId;
 
         try {
+          // Check if the command was triggered by the bot itself
+          const isTargetingBot = userId === client.user.id;
+
+          if (isTargetingBot) {
+            // Respond differently when the bot triggered the command
+            interaction.editReply({
+              embeds: [
+                {
+                  title: `${emojis.warning} Nah Nah Nah!!`,
+                  description: `${emojis.threadMark} No one can see my application.`,
+                  color: color.gray,
+                },
+              ],
+              ephemeral: true,
+            });
+            return;
+          }
+
           const app_user = await client.users.fetch(userId); // Fetch user data by userId
 
           let filter;
