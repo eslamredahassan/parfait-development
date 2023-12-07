@@ -13,7 +13,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // List of supported languages
 const supportedLanguages = [
-  { code: "ar", name: `${emojis.eg} العربية` },
+  { code: "ar", name: `العربية ${emojis.eg}` },
   { code: "en", name: `${emojis.na} English` },
   { code: "fr", name: `${emojis.fr} Français` },
   { code: "de", name: `${emojis.gr} Deutsch` },
