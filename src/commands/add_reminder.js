@@ -3,8 +3,10 @@ const { MessageEmbed } = require("discord.js");
 // Database Schemas
 const Reminders = require("../../src/database/models/reminder");
 
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
 
 module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {

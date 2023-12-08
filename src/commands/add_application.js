@@ -9,9 +9,11 @@ const {
 const moment = require("moment");
 require("moment-duration-format");
 
-const banners = require("../assest/banners.js");
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
+
 // Database Schemas
 const Application = require("../../src/database/models/application");
 

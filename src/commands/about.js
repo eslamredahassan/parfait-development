@@ -16,10 +16,11 @@ const packageJSON = require("../../package");
 const responses = require("../assest/responses.js");
 const interface = require("../assest/interface.js");
 const fieldsText = require("../assest/fieldsText.js");
-const banners = require("../assest/banners.js");
-const errors = require("../assest/errors.js");
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
+
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);

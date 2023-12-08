@@ -1,12 +1,13 @@
 const { MessageEmbed } = require("discord.js");
 const moment = require("moment");
 
-const banners = require("../assest/banners.js");
-const color = require("../assest/color.js");
-const emojis = require("../assest/emojis");
-
 // Database Schemas
 const Application = require("../../src/database/models/application");
+
+const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
+const color = settings.colors;
+const emojis = settings.emojis;
+const banners = settings.banners;
 
 module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);

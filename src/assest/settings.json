@@ -195,5 +195,24 @@
     "canceledIcon": "https://i.imgur.com/nXUFePl.png",
     "parfaitIcon": "https://i.imgur.com/NpNsiR1.png",
     "footerIcon": "https://i.imgur.com/Ze74maV.png"
+  },
+
+  "responses": {
+    "peekapoo": "peekapoo",
+    "live": "Hi I'm Alive",
+    "hello": "Hello There",
+    "wdyw": "What do you want?",
+    "dnd": "don't disturb me",
+    "lost": "Are you lost baby girl?",
+    "hi": "Hi Dude, I can't talk now",
+    "ntfc": "I'm working now, no time for chat",
+    "wait": "Wait a little bit before asking me to do this again",
+    "lazy": "I'm lazy now ask me later",
+    "know": "Do I know you before?",
+    "busy": "I'm busy now come back later",
+    "oh": "Seems the door is closed, do you have the key?",
+    "ops": "Oops! The recruitment is closed now come back later",
+    "sad": "You can't apply now because the recruitment is closed",
+    "angry": "What do you see above, hieroglyphs? The recruitment is closed"
   }
 }
