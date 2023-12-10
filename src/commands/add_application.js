@@ -8,6 +8,7 @@ const {
 
 const moment = require("moment");
 require("moment-duration-format");
+const fs = require("fs");
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;

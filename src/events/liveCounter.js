@@ -50,5 +50,5 @@ module.exports = async (client, config) => {
         `\x1b[35m ${error.message}`,
       );
     }
-  }, 20 * 1000);
+  }, 60 * 1000);
 };

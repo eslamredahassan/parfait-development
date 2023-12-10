@@ -4,7 +4,7 @@ require("moment-duration-format");
 module.exports = {
   ///---| Main UI Banners |---///
   closeBanner: `https://i.imgur.com/8rfW6TT.png`,
-  openBanner: `https://i.imgur.com/sH4bSVG.png`,
+  openBanner: `https://i.imgur.com/ZyxKBD8.gif`,
   maintenance: `https://i.imgur.com/PH1kyqf.png`,
   maintenanceIcon: `https://i.imgur.com/mwZ3A1C.png`,
   langBanner: `https://i.imgur.com/Ih8t7fc.png`,
@@ -55,7 +55,7 @@ module.exports = {
   apologizeBanner: `https://i.imgur.com/pW8qS96.png`,
   dmApologizeBanner: `https://i.imgur.com/f3UhhWO.png`,
   FinishpromoteBanner: `https://i.imgur.com/cFj7jMJ.png`,
-  appResultBanner: `https://i.imgur.com/EkDxKUJ.png`,
+  appResultBanner: `https://i.imgur.com/eNmoMNz.gif`,
 
   // ---| Member List |---///
   list: `https://i.imgur.com/mMxiJ9k.png`,

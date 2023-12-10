@@ -12,9 +12,6 @@
   "dependencies": {
     "@discordjs/builders": "^1.6.5",
     "@discordjs/rest": "^2.0.0",
-    "@google-cloud/translate": "^8.0.2",
-    "@iamtraction/google-translate": "^2.0.1",
-    "@vitalets/google-translate-api": "^9.2.0",
     "bad-words": "^3.0.4",
     "canvas": "^2.11.2",
     "detect-language": "^2.0.1",

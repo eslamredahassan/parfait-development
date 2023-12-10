@@ -93,7 +93,7 @@ client.on("ready", async () => {
     });
   });
 
-  // The directory where your select menu files are stored
+  // The directory where your context menu files are stored
   const contextMenuDirectory = path.join(__dirname, "src/context menu");
   // Read all files in the directory
   fs.readdir(contextMenuDirectory, (error, files) => {

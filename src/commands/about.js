@@ -7,6 +7,7 @@ const {
 } = require("discord.js");
 
 const os = require("os");
+const fs = require("fs");
 const moment = require("moment");
 const wait = require("util").promisify(setTimeout);
 const cooldown = new Set();

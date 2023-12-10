@@ -8,6 +8,7 @@ const {
 
 const moment = require("moment");
 const wait = require("util").promisify(setTimeout);
+const fs = require("fs");
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
