@@ -1,8 +1,6 @@
 const { MessageSelectMenu, MessageActionRow } = require("discord.js");
 
 const moment = require("moment");
-const wait = require("util").promisify(setTimeout);
-const cooldown = new Set();
 require("moment-duration-format");
 
 const messages = require("../assest/messages.js");
@@ -18,7 +16,8 @@ module.exports = async (client) => {
         await interaction.deferReply({ ephemeral: true });
 
         console.log(
-          `\x1b[31m  〢`,
+          `\x1b[0m`,
+          `\x1b[31m 〢`,
           `\x1b[33m ${moment(Date.now()).format("lll")}`,
           `\x1b[34m ${interaction.user.username} USED`,
           `\x1b[35m FAQ Button`,
@@ -95,7 +94,8 @@ module.exports = async (client) => {
         });
       } catch (error) {
         console.error(
-          `\x1b[0m``\x1b[31m 〢`,
+          `\x1b[0m`,
+          `\x1b[31m 〢`,
           `\x1b[33m ${moment(Date.now()).format("lll")}`,
           `\x1b[31m Something went wrong in FAQ Category:`,
           `\x1b[35m ${error.message}`,
@@ -164,7 +164,8 @@ module.exports = async (client) => {
               ); // End of .addComponents()
 
               console.log(
-                `\x1b[31m  〢`,
+                `\x1b[0m`,
+                `\x1b[31m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("lll")}`,
                 `\x1b[34m ${interaction.user.username} WATCH`,
                 `\x1b[35m Appyling Category`,
@@ -264,7 +265,8 @@ module.exports = async (client) => {
               ); // End of .addComponents()
 
               console.log(
-                `\x1b[31m  〢`,
+                `\x1b[0m`,
+                `\x1b[31m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("lll")}`,
                 `\x1b[34m ${interaction.user.username} WATCH`,
                 `\x1b[35m Approved Applications Category`,
@@ -349,7 +351,8 @@ module.exports = async (client) => {
               ); // End of .addComponents()
 
               console.log(
-                `\x1b[31m  〢`,
+                `\x1b[0m`,
+                `\x1b[31m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("lll")}`,
                 `\x1b[34m ${interaction.user.username} WATCH`,
                 `\x1b[35m Declined Applications Category`,
@@ -429,7 +432,8 @@ module.exports = async (client) => {
               ); // End of .addComponents()
 
               console.log(
-                `\x1b[31m  〢`,
+                `\x1b[0m`,
+                `\x1b[31m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("lll")}`,
                 `\x1b[34m ${interaction.user.username} WATCH`,
                 `\x1b[35m Tryout Process Category`,
@@ -524,7 +528,8 @@ module.exports = async (client) => {
               ); // End of .addComponents()
 
               console.log(
-                `\x1b[31m  〢`,
+                `\x1b[0m`,
+                `\x1b[31m 〢`,
                 `\x1b[33m ${moment(Date.now()).format("lll")}`,
                 `\x1b[34m ${interaction.user.username} WATCH`,
                 `\x1b[35m Parfait Bot Category`,
@@ -580,7 +585,8 @@ module.exports = async (client) => {
         }
       } catch (error) {
         console.error(
-          `\x1b[0m``\x1b[31m 〢`,
+          `\x1b[0m`,
+          `\x1b[31m 〢`,
           `\x1b[33m ${moment(Date.now()).format("lll")}`,
           `\x1b[31m Something went wrong in FAQ Category:`,
           `\x1b[35m ${error.message}`,
