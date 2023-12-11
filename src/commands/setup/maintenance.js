@@ -98,7 +98,86 @@ module.exports = async (client, config) => {
           let applyChannel = interaction.guild.channels.cache.get(
             config.applyChannel,
           );
-          if (!applyChannel) return;
+
+          if (!applyChannel) {
+            interaction.editReply({
+              embeds: [
+                {
+                  title: `${emojis.warning} Error`,
+                  description: `<#${applyChannel}> not found or I can't access it.`,
+                  color: `${color.gray}`,
+                },
+              ],
+              //this is the important part
+              ephemeral: true,
+            });
+            return;
+          }
+
+          // Check if there's an existing interface message in applyChannel
+          const existingInterfaceData = await UI.findOne({
+            guildId: interaction.guild.id,
+            channelId: applyChannel.id,
+          });
+
+          if (existingInterfaceData) {
+            try {
+              // If there's an existing message, fetch it
+              const oldInterfaceMessage = await applyChannel.messages.fetch(
+                existingInterfaceData.embedId,
+                { cache: false }, // Disable caching for this fetch
+              );
+
+              // Check if the message exists before trying to delete it
+              if (oldInterfaceMessage) {
+                await oldInterfaceMessage.delete().catch((error) => {
+                  if (error.code === 10008) {
+                    console.log(
+                      `\x1b[0m`,
+                      `\x1b[33m 〢`,
+                      `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                      `\x1b[31m Old message not found,`,
+                      `\x1b[32m it may have been deleted.`,
+                    );
+                  } else {
+                    console.error(
+                      `\x1b[0m`,
+                      `\x1b[33m 〢`,
+                      `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                      `\x1b[31m Error deleting old message:`,
+                      `\x1b[35m ${error.message}`,
+                    );
+                  }
+                });
+              } else {
+                console.log(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Old Userinterface not found,`,
+                  `\x1b[32m Sent new interface.`,
+                );
+              }
+            } catch (error) {
+              if (error.code === 10008) {
+                console.log(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Old Userinterface not found,`,
+                  `\x1b[32m Sent new interface.`,
+                );
+              } else {
+                console.error(
+                  `\x1b[0m`,
+                  `\x1b[33m 〢`,
+                  `\x1b[33m ${moment(Date.now()).format("LT")}`,
+                  `\x1b[31m Error fetching or deleting old message:`,
+                  `\x1b[35m ${error.message}`,
+                );
+              }
+            }
+          }
 
           let userInterface = await applyChannel.send({
             embeds: [
@@ -143,10 +222,17 @@ module.exports = async (client, config) => {
             ephemeral: true,
             components: [],
           });
-          const existingInterfaceData = await UI.findOne({
-            guildId: interaction.guild.id,
-            channelId: applyChannel.id,
-          });
+          try {
+            const existingInterfaceData = await UI.findOne({
+              guildId: interaction.guild.id,
+              channelId: applyChannel.id,
+            });
+          } catch (error) {
+            console.error(
+              "Error fetching application information:",
+              error.message,
+            );
+          }
 
           if (existingInterfaceData) {
             // If entry exists, update its properties
