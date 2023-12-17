@@ -43,29 +43,32 @@ const votedUsers = new Set();
 // Function to generate a vertical bar chart image for given vote counts
 async function generateChart(voteCounts) {
     const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
-  
+    const optionColors = ['#d9507c', '#4a90e2', '#00cc99', '#ffcc00']; // Add more colors as needed
+
     const configuration = {
       type: 'bar',
       data: {
-        labels: [], // Empty labels array
+        labels: Object.keys(voteCounts),
         datasets: [{
           label: 'Votes',
           data: Object.values(voteCounts),
-          backgroundColor: '#d9507c',
+          backgroundColor: optionColors,
+          categoryPercentage: 1, // Hide category (x-axis) labels
+          barPercentage: 1, // Hide bar labels
+          barThickness: 20, // Adjust bar width
+          maxBarThickness: 25, // Maximum bar width
+          minBarLength: 2, // Minimum bar height
         }],
       },
       options: {
         scales: {
           x: {
-            display: false, // Hide x-axis
+            type: 'category',
+            position: 'bottom',
+            display: false,
           },
           y: {
             beginAtZero: true,
-          },
-        },
-        plugins: {
-          legend: {
-            display: false, // Hide legend
           },
         },
       },
