@@ -40,11 +40,11 @@ function parseDuration(durationString) {
 // Declare votedUsers at a higher scope to retain its state
 const votedUsers = new Set();
 
-// Function to generate a vertical bar chart image for given vote counts
-async function generateChart(voteCounts) {
+// Function to generate a vertical bar chart image for given vote counts and custom text
+async function generateChart(voteCounts, customText) {
     const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
     const optionColors = ['#d9507c', '#4a90e2', '#00cc99', '#ffcc00']; // Add more colors as needed
-
+    
     const configuration = {
       type: 'bar',
       data: {
@@ -71,15 +71,35 @@ async function generateChart(voteCounts) {
             beginAtZero: true,
           },
         },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          annotation: {
+            annotations: [{
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y',
+              value: 0,
+              borderColor: 'rgb(75, 192, 192)',
+              borderWidth: 2,
+            }],
+          },
+        },
       },
     };
   
     const image = await canvas.renderToBuffer(configuration);
     const attachment = new MessageAttachment(image, 'chart.png');
   
-    return attachment;
-  }
-  
+    const embed = new MessageEmbed()
+      .setColor(color.gray)
+      .setTitle(customText)
+      .setDescription(`${emojis.threadMark} Here is the chart:`)
+      .setImage("attachment://chart.png");
+
+    return { embed, attachment };
+}
 
 module.exports = async (client, config) => {
   const voteCounts = {};
@@ -126,16 +146,13 @@ module.exports = async (client, config) => {
           const targetChannel =
             channelOption || interaction.channel || interaction.user.dmChannel;
 
-          const pollEmbed = new MessageEmbed()
-            .setColor(color.gray)
-            .setTitle(`${emojis.warning} Poll: ${pollObject}`)
-            .setDescription(
-              `${emojis.threadMark} Vote by clicking the buttons below.`
-            );
+          const chartText = `${emojis.warning} Poll: ${pollObject}`;
+          const { embed, attachment } = await generateChart(voteCounts, chartText);
 
           const pollMessage = await targetChannel.send({
-            embeds: [pollEmbed],
+            embeds: [embed],
             components: [row],
+            files: [attachment], // Attach the chart image
           });
 
           await interaction.editReply({
@@ -158,19 +175,7 @@ module.exports = async (client, config) => {
                 });
 
                 // Generate the vertical bar chart image
-                const chartImage = await generateChart(voteCounts);
-
-                const resultsEmbed = new MessageEmbed()
-                  .setColor(color.gray)
-                  .setTitle(`${emojis.poll} Poll Results: ${pollObject}`)
-                  .setDescription(
-                    `${emojis.threadMark} Here are the results:\n${results.join(
-                      "\n"
-                    )}`
-                  );
-
-                // Add the chart image to the embed
-                resultsEmbed.setImage("attachment://chart.png");
+                const { embed: resultsEmbed, attachment: chartImage } = await generateChart(voteCounts, `${emojis.poll} Poll Results: ${pollObject}`);
 
                 pollMessage.edit({
                   embeds: [resultsEmbed],
@@ -266,24 +271,10 @@ module.exports = async (client, config) => {
       );
 
       // Generate the vertical bar chart image
-      const chartImage = await generateChart(voteCounts);
+      const { embed: updatedResultsEmbed, attachment: chartImage } = await generateChart(voteCounts, `${emojis.poll} Poll Results: ${pollObject}`);
 
       // Update the interaction with the new button labels and chart image
       const row = new MessageActionRow().addComponents(updatedButtons);
-      const updatedResultsEmbed = new MessageEmbed()
-        .setColor(color.gray)
-        .setTitle(`${emojis.poll} Poll Results: ${pollObject}`)
-        .setDescription(
-          `${emojis.threadMark} Here are the results:\n${Object.keys(
-            voteCounts
-          )
-            .map((option) => `${option}: ${voteCounts[option]}`)
-            .join("\n")}`
-        );
-
-      // Add the chart image to the embed
-      updatedResultsEmbed.setImage("attachment://chart.png");
-
       await interaction.message.edit({
         embeds: [updatedResultsEmbed],
         components: [row],
