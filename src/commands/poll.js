@@ -1,7 +1,12 @@
-const { MessageActionRow, MessageButton, MessageEmbed, MessageAttachment } = require("discord.js");
+const {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageAttachment,
+} = require("discord.js");
 const fs = require("fs");
 const moment = require("moment");
-const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
+const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
@@ -14,7 +19,7 @@ function parseDuration(durationString) {
 
   if (!match) {
     throw new Error(
-      "Invalid duration format. Use a format like '1s', '1m', '1h', '1d'."
+      "Invalid duration format. Use a format like '1s', '1m', '1h', '1d'.",
     );
   }
 
@@ -32,7 +37,7 @@ function parseDuration(durationString) {
       return value * 24 * 60 * 60 * 1000; // days to milliseconds
     default:
       throw new Error(
-        "Invalid duration unit. Use 's' for seconds, 'm' for minutes, 'h' for hours, 'd' for days."
+        "Invalid duration unit. Use 's' for seconds, 'm' for minutes, 'h' for hours, 'd' for days.",
       );
   }
 }
@@ -41,16 +46,17 @@ function parseDuration(durationString) {
 const votedUsers = new Set();
 
 // Function to generate a vertical bar chart image for given vote counts and custom text
-async function generateChart(voteCounts, customText) {
-    const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
-    const optionColors = ['#d9507c', '#4a90e2', '#00cc99', '#ffcc00']; // Add more colors as needed
-    
-    const configuration = {
-      type: 'bar',
-      data: {
-        labels: Object.keys(voteCounts),
-        datasets: [{
-          label: 'Votes',
+async function generateChart(voteCounts, customText, duration, user) {
+  const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
+  const optionColors = ["#d9507c", "#4a90e2", "#00cc99", "#ffcc00"]; // Add more colors as needed
+
+  const configuration = {
+    type: "bar",
+    data: {
+      labels: Object.keys(voteCounts),
+      datasets: [
+        {
+          label: "Votes",
           data: Object.values(voteCounts),
           backgroundColor: optionColors,
           categoryPercentage: 1, // Hide category (x-axis) labels
@@ -58,47 +64,62 @@ async function generateChart(voteCounts, customText) {
           barThickness: 20, // Adjust bar width
           maxBarThickness: 25, // Maximum bar width
           minBarLength: 2, // Minimum bar height
-        }],
-      },
-      options: {
-        scales: {
-          x: {
-            type: 'category',
-            position: 'bottom',
-            display: false,
-          },
-          y: {
-            beginAtZero: true,
-          },
         },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          annotation: {
-            annotations: [{
-              type: 'line',
-              mode: 'horizontal',
-              scaleID: 'y',
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          type: "category",
+          position: "bottom",
+          display: false,
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        annotation: {
+          annotations: [
+            {
+              type: "line",
+              mode: "horizontal",
+              scaleID: "y",
               value: 0,
-              borderColor: 'rgb(75, 192, 192)',
+              borderColor: "rgb(75, 192, 192)",
               borderWidth: 2,
-            }],
-          },
+            },
+          ],
         },
       },
-    };
-  
-    const image = await canvas.renderToBuffer(configuration);
-    const attachment = new MessageAttachment(image, 'chart.png');
-  
-    const embed = new MessageEmbed()
-      .setColor(color.gray)
-      .setTitle(customText)
-      .setDescription(`${emojis.threadMark} Here is the chart:`)
-      .setImage("attachment://chart.png");
+    },
+  };
 
-    return { embed, attachment };
+  const image = await canvas.renderToBuffer(configuration);
+  const attachment = new MessageAttachment(image, "chart.png");
+  const liveDuration = `<t:${Math.floor((Date.now() + duration) / 1000)}:R>`; // Format duration using Discord timestamp
+  const embed = new MessageEmbed()
+    .setColor(color.gray)
+    .setTitle(customText)
+    .setDescription(`${emojis.threadMark} Here is the chart:`)
+    .setImage("attachment://chart.png")
+    .addFields(
+      {
+        name: `${emojis.time} Poll ends`,
+        value: `${emojis.threadMark} ${liveDuration}`,
+        inline: true,
+      },
+      { 
+        name: `${emojis.id} Poll created by`,
+        value: `${emojis.threadMark} ${user}`,
+        inline: true 
+        },
+    );
+
+  return { embed, attachment };
 }
 
 module.exports = async (client, config) => {
@@ -106,6 +127,7 @@ module.exports = async (client, config) => {
   let votingOptions;
   let pollObject;
   let pollFinalized = false;
+  let duration; // Declare duration at a higher scope
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "poll") {
@@ -126,7 +148,7 @@ module.exports = async (client, config) => {
           pollObject = interaction.options.getString("object");
           votingOptions = interaction.options.getString("vote").split(",");
           const durationString = interaction.options.getString("duration");
-          const duration = parseDuration(durationString);
+          duration = parseDuration(durationString); // Assign duration to the higher-scoped variable
           const channelOption = interaction.options.getChannel("channel");
 
           votingOptions.forEach((option) => {
@@ -138,7 +160,7 @@ module.exports = async (client, config) => {
               .setCustomId(`vote_${index + 1}`)
               .setEmoji(option)
               .setLabel(`${voteCounts[option]}`)
-              .setStyle(2)
+              .setStyle(2),
           );
 
           const row = new MessageActionRow().addComponents(buttons);
@@ -146,8 +168,13 @@ module.exports = async (client, config) => {
           const targetChannel =
             channelOption || interaction.channel || interaction.user.dmChannel;
 
-          const chartText = `${emojis.warning} Poll: ${pollObject}`;
-          const { embed, attachment } = await generateChart(voteCounts, chartText);
+          const chartText = `${emojis.poll} Poll: ${pollObject}`;
+          const { embed, attachment } = await generateChart(
+            voteCounts,
+            chartText,
+            duration,
+            interaction.user,
+          );
 
           const pollMessage = await targetChannel.send({
             embeds: [embed],
@@ -175,7 +202,13 @@ module.exports = async (client, config) => {
                 });
 
                 // Generate the vertical bar chart image
-                const { embed: resultsEmbed, attachment: chartImage } = await generateChart(voteCounts, `${emojis.poll} Poll Results: ${pollObject}`);
+                const { embed: resultsEmbed, attachment: chartImage } =
+                  await generateChart(
+                    voteCounts,
+                    `${emojis.poll} Poll Results: ${pollObject}`,
+                    duration,
+                    interaction.user,
+                  );
 
                 pollMessage.edit({
                   embeds: [resultsEmbed],
@@ -191,12 +224,12 @@ module.exports = async (client, config) => {
                 `\x1b[0m`,
                 `\x1b[33m ${moment(Date.now()).format("LT")}`,
                 `\x1b[31m Error in poll command:`,
-                `\x1b[34m ${error.message}`
+                `\x1b[34m ${error.message}`,
               );
               const errorEmbed = new MessageEmbed()
                 .setColor(color.gray)
                 .setDescription(
-                  `${emojis.warning} An error occurred while processing the command.`
+                  `${emojis.warning} An error occurred while processing the command.`,
                 );
               await interaction.editReply({
                 embeds: [errorEmbed],
@@ -209,12 +242,12 @@ module.exports = async (client, config) => {
             `\x1b[0m`,
             `\x1b[33m ${moment(Date.now()).format("LT")}`,
             `\x1b[31m Error in poll command:`,
-            `\x1b[34m ${error.message}`
+            `\x1b[34m ${error.message}`,
           );
           const errorEmbed = new MessageEmbed()
             .setColor(color.gray)
             .setDescription(
-              `${emojis.warning} An error occurred while processing the command.`
+              `${emojis.warning} An error occurred while processing the command.`,
             );
           await interaction.editReply({
             embeds: [errorEmbed],
@@ -237,10 +270,7 @@ module.exports = async (client, config) => {
   });
 
   client.on("interactionCreate", async (interaction) => {
-    if (
-      interaction.isButton() &&
-      interaction.customId.startsWith("vote_")
-    ) {
+    if (interaction.isButton() && interaction.customId.startsWith("vote_")) {
       await interaction.deferReply({ ephemeral: true });
       const customId = interaction.customId;
       const selectedOption = customId.split("_")[1];
@@ -267,11 +297,17 @@ module.exports = async (client, config) => {
           .setCustomId(`vote_${index + 1}`)
           .setEmoji(option)
           .setLabel(`${voteCounts[option]}`)
-          .setStyle(2)
+          .setStyle(2),
       );
 
       // Generate the vertical bar chart image
-      const { embed: updatedResultsEmbed, attachment: chartImage } = await generateChart(voteCounts, `${emojis.poll} Poll Results: ${pollObject}`);
+      const { embed: updatedResultsEmbed, attachment: chartImage } =
+        await generateChart(
+          voteCounts,
+          `${emojis.poll} Poll Results: ${pollObject}`,
+          duration,
+          interaction.user,
+        );
 
       // Update the interaction with the new button labels and chart image
       const row = new MessageActionRow().addComponents(updatedButtons);
