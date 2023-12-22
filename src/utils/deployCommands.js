@@ -73,6 +73,10 @@ module.exports = async (client, config) => {
           type: 3,
         },
         {
+          name: "Voters List",
+          type: 3,
+        },
+        {
           name: "echo",
           description: `🧪︱ 📢 Parfait will send your message`,
           options: [

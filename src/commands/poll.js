@@ -7,10 +7,12 @@ const {
 const fs = require("fs");
 const moment = require("moment");
 const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
+const Poll = require("../../src/database/models/application");
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
 const emojis = settings.emojis;
+const banners = settings.banners;
 
 // Function to parse duration string and convert it to milliseconds
 function parseDuration(durationString) {
@@ -43,36 +45,56 @@ function parseDuration(durationString) {
 }
 
 // Function to generate a vertical bar chart image for given vote counts and custom text
-async function generateChart(voteCounts, customText, duration, user) {
+async function generateChart(
+  voteCounts,
+  customText,
+  duration,
+  user,
+  isEnded,
+  totalVoters,
+) {
   const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
   const optionColors = ["#d9507c", "#4a90e2", "#00cc99", "#ffcc00"]; // Add more colors as needed
+
+  const labels = Object.keys(voteCounts).map((_, index) =>
+    (index + 1).toString(),
+  );
 
   const configuration = {
     type: "bar",
     data: {
-      labels: Object.keys(voteCounts),
+      labels: labels,
       datasets: [
         {
           label: "Votes",
           data: Object.values(voteCounts),
           backgroundColor: optionColors,
-          categoryPercentage: 1, // Hide category (x-axis) labels
-          barPercentage: 1, // Hide bar labels
-          barThickness: 20, // Adjust bar width
-          maxBarThickness: 25, // Maximum bar width
-          minBarLength: 2, // Minimum bar height
+          barPercentage: 1.0, // Adjust bar width as a percentage of the available space
+          categoryPercentage: 1.0, // Adjust the width of the entire category as a percentage of the available space
+          barThickness: 30, // Adjust bar width
+          maxBarThickness: 100, // Maximum bar width
         },
       ],
     },
     options: {
       scales: {
         x: {
-          type: "category",
+          type: "linear",
           position: "bottom",
-          display: false,
+          ticks: {
+            stepSize: 1,
+            callback: (value, index) => (index + 1).toString(), // Use index + 1 as the label
+          },
         },
         y: {
+          type: "linear",
+          position: "left",
           beginAtZero: true,
+          suggestedMin: 0,
+          suggestedMax: 20,
+          ticks: {
+            stepSize: 1, // Adjust the step size as needed
+          },
         },
       },
       plugins: {
@@ -92,21 +114,29 @@ async function generateChart(voteCounts, customText, duration, user) {
           ],
         },
       },
+      layout: {
+        padding: {
+          categorySpacing: 0,
+        },
+      },
     },
   };
 
   const image = await canvas.renderToBuffer(configuration);
   const attachment = new MessageAttachment(image, "chart.png");
-  const liveDuration = `<t:${Math.floor((Date.now() + duration) / 1000)}:R>`; // Format duration using Discord timestamp
+  const liveDuration = `Ends <t:${Math.floor(
+    (Date.now() + duration) / 1000,
+  )}:R>`; // Format duration using Discord timestamp
+  const endedDuration = `Ended <t:${Math.floor(Date.now() / 1000)}:R>`; // Format duration using Discord timestamp for the end time
   const embed = new MessageEmbed()
     .setColor(color.gray)
-    .setTitle(customText)
-    .setDescription(`${emojis.threadMark} Here is the chart:`)
+    .setTitle(`${emojis.poll} Poll`)
+    .setDescription(customText)
     .setImage("attachment://chart.png")
     .addFields(
       {
-        name: `${emojis.time} Poll ends`,
-        value: `${emojis.threadMark} ${liveDuration}`,
+        name: `${emojis.time} Poll Status`,
+        value: `${emojis.threadMark} ${isEnded ? endedDuration : liveDuration}`,
         inline: true,
       },
       {
@@ -114,9 +144,13 @@ async function generateChart(voteCounts, customText, duration, user) {
         value: `${emojis.threadMark} ${user}`,
         inline: true,
       },
-    );
+    )
+    .setFooter({
+      text: `Total votes ${totalVoters || 0} votes`,
+      iconURL: banners.parfaitIcon,
+    });
 
-  return { embed, attachment };
+  return { embed, attachment, configuration };
 }
 
 module.exports = async (client, config) => {
@@ -144,7 +178,9 @@ module.exports = async (client, config) => {
             .split(",");
           const durationString = interaction.options.getString("duration");
           const duration = parseDuration(durationString);
-
+          const liveDuration = `<t:${Math.floor(
+            (Date.now() + duration) / 1000,
+          )}:R>`; // Format duration using Discord timestamp
           const channelOption = interaction.options.getChannel("channel");
 
           const votedUsers = new Set(); // Use a separate set for each poll
@@ -167,12 +203,13 @@ module.exports = async (client, config) => {
           const targetChannel =
             channelOption || interaction.channel || interaction.user.dmChannel;
 
-          const chartText = `${emojis.poll} Poll: ${pollObject}`;
           const { embed, attachment } = await generateChart(
             voteCounts,
-            chartText,
+            pollObject,
             duration,
             interaction.user,
+            false, // isEnded initially set to false
+            0, // totalVoters initially set to 0
           );
 
           const pollMessage = await targetChannel.send({
@@ -184,8 +221,8 @@ module.exports = async (client, config) => {
           await interaction.editReply({
             embeds: [
               {
-                title: `${emojis.success} Poll created`,
-                description: `${emojis.threadMark} The poll has been created in ${targetChannel}.`,
+                title: `${emojis.check} Poll created`,
+                description: `${emojis.threadMark} The poll has been created in ${targetChannel} that ends ${liveDuration}.`,
                 color: color.gray,
               },
             ],
@@ -212,12 +249,15 @@ module.exports = async (client, config) => {
                 });
 
                 // Generate the vertical bar chart image
+                const totalVoters = pollData.votedUsers.size;
                 const { embed: resultsEmbed, attachment: chartImage } =
                   await generateChart(
                     pollData.voteCounts,
-                    `${emojis.poll} Poll Results: ${pollData.pollObject}`,
-                    pollData.duration,
+                    pollData.pollObject,
+                    true,
                     interaction.user,
+                    true, // Set isEnded to true
+                    totalVoters,
                   );
 
                 pollMessage.edit({
@@ -300,7 +340,13 @@ module.exports = async (client, config) => {
       if (pollData.votedUsers.has(interaction.user.id)) {
         // User has already voted
         await interaction.editReply({
-          content: `You have already voted`,
+          embeds: [
+            {
+              //title: `${emojis.alert} You have already voted`,
+              description: `${emojis.warning} You have already voted in this poll.`,
+              color: color.gray,
+            },
+          ],
           ephemeral: true,
         });
         return;
@@ -325,9 +371,11 @@ module.exports = async (client, config) => {
       const { embed: updatedResultsEmbed, attachment: chartImage } =
         await generateChart(
           pollData.voteCounts,
-          `${emojis.poll} Poll Results: ${pollData.pollObject}`,
+          pollData.pollObject,
           pollData.duration,
           interaction.user,
+          true, // Set isEnded to true
+          pollData.votedUsers.size, // Use the current total voters
         );
 
       // Update the interaction with the new button labels and chart image
@@ -340,9 +388,54 @@ module.exports = async (client, config) => {
 
       // Reply to the user indicating the vote
       await interaction.editReply({
-        content: `You voted for ${pollData.votingOptions[selectedOption - 1]}.`,
+        embeds: [
+          {
+            //title: `${emojis.check} Vote Successful`,
+            description: `${emojis.check} You voted for ${
+              pollData.votingOptions[selectedOption - 1]
+            }.`,
+            color: color.gray,
+          },
+        ],
         ephemeral: true,
       });
+    }
+  });
+
+  client.on("interactionCreate", async (interaction) => {
+    if (
+      interaction.isContextMenu() &&
+      interaction.commandName === "Voters List"
+    ) {
+      await interaction.deferReply({ ephemeral: true });
+
+      const messageId = interaction.targetId;
+      const pollData = polls.get(messageId);
+
+      if (!pollData) {
+        // Poll data not found, possibly expired
+        await interaction.editReply({
+          content: `This poll has either expired or does not exist.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      const voterNames = Array.from(pollData.votedUsers).map((userId) => {
+        const member = interaction.guild.members.cache.get(userId);
+        return member ? member.displayName : "Unknown User";
+      });
+
+      const embed = new MessageEmbed()
+        .setColor(color.gray)
+        .setTitle(`${emojis.poll} Voters List`)
+        .setDescription(voterNames.join("\n"))
+        .setFooter({
+          text: `Total votes: ${voterNames.length}`,
+          iconURL: banners.parfaitIcon,
+        });
+
+      await interaction.editReply({ embeds: [embed], ephemeral: true });
     }
   });
 };
