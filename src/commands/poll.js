@@ -415,7 +415,13 @@ module.exports = async (client, config) => {
       if (!pollData) {
         // Poll data not found, possibly expired
         await interaction.editReply({
-          content: `This poll has either expired or does not exist.`,
+          embeds: [
+            {
+              //title: `${emojis.alert} Poll expired`,
+              description: `${emojis.warning} This poll has either expired or does not exist.`,
+              color: color.gray,
+            },
+          ],
           ephemeral: true,
         });
         return;
