@@ -42,9 +42,6 @@ function parseDuration(durationString) {
   }
 }
 
-// Declare votedUsers at a higher scope to retain its state
-const votedUsers = new Set();
-
 // Function to generate a vertical bar chart image for given vote counts and custom text
 async function generateChart(voteCounts, customText, duration, user) {
   const canvas = new ChartJSNodeCanvas({ width: 400, height: 200 });
@@ -112,22 +109,18 @@ async function generateChart(voteCounts, customText, duration, user) {
         value: `${emojis.threadMark} ${liveDuration}`,
         inline: true,
       },
-      { 
+      {
         name: `${emojis.id} Poll created by`,
         value: `${emojis.threadMark} ${user}`,
-        inline: true 
-        },
+        inline: true,
+      },
     );
 
   return { embed, attachment };
 }
 
 module.exports = async (client, config) => {
-  const voteCounts = {};
-  let votingOptions;
-  let pollObject;
-  let pollFinalized = false;
-  let duration; // Declare duration at a higher scope
+  const polls = new Map(); // Use a Map to store information about each poll
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "poll") {
@@ -145,11 +138,17 @@ module.exports = async (client, config) => {
 
       if (user.roles.cache.hasAny(...perms)) {
         try {
-          pollObject = interaction.options.getString("object");
-          votingOptions = interaction.options.getString("vote").split(",");
+          const pollObject = interaction.options.getString("object");
+          const votingOptions = interaction.options
+            .getString("vote")
+            .split(",");
           const durationString = interaction.options.getString("duration");
-          duration = parseDuration(durationString); // Assign duration to the higher-scoped variable
+          const duration = parseDuration(durationString);
+
           const channelOption = interaction.options.getChannel("channel");
+
+          const votedUsers = new Set(); // Use a separate set for each poll
+          const voteCounts = {};
 
           votingOptions.forEach((option) => {
             voteCounts[option] = 0;
@@ -193,20 +192,31 @@ module.exports = async (client, config) => {
             ephemeral: true,
           });
 
+          polls.set(pollMessage.id, {
+            voteCounts,
+            votedUsers,
+            votingOptions,
+            pollObject,
+            duration,
+            pollFinalized: false,
+          });
+
           setTimeout(async () => {
             try {
-              if (!pollFinalized) {
-                const results = votingOptions.map((option, index) => {
-                  const count = voteCounts[option];
+              const pollData = polls.get(pollMessage.id);
+
+              if (!pollData.pollFinalized) {
+                const results = pollData.votingOptions.map((option) => {
+                  const count = pollData.voteCounts[option];
                   return `${option}: ${count} votes`;
                 });
 
                 // Generate the vertical bar chart image
                 const { embed: resultsEmbed, attachment: chartImage } =
                   await generateChart(
-                    voteCounts,
-                    `${emojis.poll} Poll Results: ${pollObject}`,
-                    duration,
+                    pollData.voteCounts,
+                    `${emojis.poll} Poll Results: ${pollData.pollObject}`,
+                    pollData.duration,
                     interaction.user,
                   );
 
@@ -217,7 +227,7 @@ module.exports = async (client, config) => {
                 });
 
                 // Set the flag to true to indicate that the poll has been finalized
-                pollFinalized = true;
+                polls.get(pollMessage.id).pollFinalized = true;
               }
             } catch (error) {
               console.error(
@@ -275,8 +285,19 @@ module.exports = async (client, config) => {
       const customId = interaction.customId;
       const selectedOption = customId.split("_")[1];
 
+      const pollData = polls.get(interaction.message.id);
+
+      if (!pollData) {
+        // Poll data not found, possibly expired
+        await interaction.editReply({
+          content: `This poll has either expired or does not exist.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
       // Check if the user has already voted
-      if (votedUsers.has(interaction.user.id)) {
+      if (pollData.votedUsers.has(interaction.user.id)) {
         // User has already voted
         await interaction.editReply({
           content: `You have already voted`,
@@ -286,26 +307,26 @@ module.exports = async (client, config) => {
       }
 
       // Mark the user as voted
-      votedUsers.add(interaction.user.id);
+      pollData.votedUsers.add(interaction.user.id);
 
       // Increment the vote count for the selected option
-      voteCounts[votingOptions[selectedOption - 1]] += 1;
+      pollData.voteCounts[pollData.votingOptions[selectedOption - 1]] += 1;
 
       // Update the button labels with the new vote counts
-      const updatedButtons = votingOptions.map((option, index) =>
+      const updatedButtons = pollData.votingOptions.map((option, index) =>
         new MessageButton()
           .setCustomId(`vote_${index + 1}`)
           .setEmoji(option)
-          .setLabel(`${voteCounts[option]}`)
+          .setLabel(`${pollData.voteCounts[option]}`)
           .setStyle(2),
       );
 
       // Generate the vertical bar chart image
       const { embed: updatedResultsEmbed, attachment: chartImage } =
         await generateChart(
-          voteCounts,
-          `${emojis.poll} Poll Results: ${pollObject}`,
-          duration,
+          pollData.voteCounts,
+          `${emojis.poll} Poll Results: ${pollData.pollObject}`,
+          pollData.duration,
           interaction.user,
         );
 
@@ -319,7 +340,7 @@ module.exports = async (client, config) => {
 
       // Reply to the user indicating the vote
       await interaction.editReply({
-        content: `You voted for ${votingOptions[selectedOption - 1]}.`,
+        content: `You voted for ${pollData.votingOptions[selectedOption - 1]}.`,
         ephemeral: true,
       });
     }
