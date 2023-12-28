@@ -93,6 +93,8 @@ module.exports = async (client, config) => {
         // Fetch the commands for the guild
         const commands = await interaction.guild.commands.fetch();
         const totalSlashCommands = commands.size;
+        // Get the total number of servers the bot is in
+        const totalServers = client.guilds.cache.size;
 
         await interaction.editReply({
           embeds: [
@@ -119,15 +121,19 @@ module.exports = async (client, config) => {
                   inline: true,
                 },
                 {
-                  name: `${emojis.package} Total Packages`,
+                  name: `${emojis.package} Packages`,
                   value: `${emojis.threadMark} \`\`${totalPackages}\`\` Packages`,
                   inline: true,
                 },
-
                 {
-                  name: `${emojis.slash} Total Slash Commands`,
+                  name: `${emojis.slash} Slash Commands`,
                   value: `${emojis.threadMark} \`\`${totalSlashCommands}\`\` Commands`,
-                  inline: false,
+                  inline: true,
+                },
+                {
+                  name: `${emojis.link} Servers`,
+                  value: `${emojis.threadMark} \`\`${totalServers}\`\` Servers`,
+                  inline: true,
                 },
                 {
                   name: `${emojis.uptime} Uptime`,
@@ -139,7 +145,7 @@ module.exports = async (client, config) => {
                 {
                   name: `${emojis.ping} Latency`,
                   value: `${emojis.threadMark} Parfait \`\`${pingLatency}\`\` ms ${emojis.pinkDot} API \`\`${apiLatency}\`\` ms`,
-                  inline: true,
+                  inline: false,
                 },
               )
               .setFooter({
