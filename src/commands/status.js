@@ -136,7 +136,7 @@ module.exports = async (client, config) => {
                   inline: true,
                 },
                 {
-                  name: `${emojis.uptime} Uptime`,
+                  name: `${emojis.botUptime} Uptime`,
                   value: `${emojis.threadMark} Since <t:${
                     Math.floor(Date.now() / 1000) - Math.floor(process.uptime())
                   }:R>`,
