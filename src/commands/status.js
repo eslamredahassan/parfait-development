@@ -98,8 +98,9 @@ module.exports = async (client, config) => {
           embeds: [
             new MessageEmbed()
               .setColor(color.gray)
-              .setTitle(`${emojis.parfaitIcon} ${client.user.username} status`)
-              .setDescription("")
+              .setDescription(
+                `### ${emojis.parfaitIcon} ${client.user.username} status`,
+              )
               .setImage(banners.aboutBanner)
               .addFields(
                 {

@@ -52,9 +52,27 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
         },
         {
+          name: "server",
+          description: `🧪︱ 📑 List of server that Parfait joined`,
+          type: "CHAT_INPUT",
+        },
+        {
           name: "my_cooldown",
           description: `🧪︱ ⏱ Check your application cooldown duration`,
           type: "CHAT_INPUT",
+        },
+        {
+          name: "leave",
+          description: `🧪︱ ➖ Leave a server that Parfait joined before`,
+          type: "CHAT_INPUT",
+          options: [
+           {
+             name: "server_id",
+             description: "Choose server you want to leave",
+             type: 3, // CHANNEL
+             required: true,
+           } 
+          ]
         },
         {
           name: "Info",
