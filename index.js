@@ -184,7 +184,7 @@ client.once("ready", async () => {
     const startTime = Date.now();
 
     // Replace 'YOUR_BOT_ENDPOINT' with the actual endpoint of your bot
-    fetch("https://f3th74-3000.csb.app", {
+    fetch("https://rzj7df-3000.csb.app", {
       method: "GET",
     })
       .then((response) => {
