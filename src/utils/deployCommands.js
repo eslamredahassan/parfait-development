@@ -66,13 +66,140 @@ module.exports = async (client, config) => {
           description: `🧪︱ ➖ Leave a server that Parfait joined before`,
           type: "CHAT_INPUT",
           options: [
-           {
-             name: "server_id",
-             description: "Choose server you want to leave",
-             type: 3, // CHANNEL
-             required: true,
-           } 
-          ]
+            {
+              name: "server_id",
+              description: "Choose server you want to leave",
+              type: 3, // CHANNEL
+              required: true,
+            },
+          ],
+        },
+        {
+          name: "give",
+          description: "🧪︱ ➖ Give ice coin to sun member",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "user",
+              description: "Choose the user you want to give",
+              type: 6, // USER
+              required: true,
+            },
+            {
+              name: "ice_coins",
+              description: "Type the amount of ice coins you want to give",
+              type: 4, // Integer
+              required: true,
+            },
+          ],
+        },
+        {
+          name: "take",
+          description: "🧪︱ ➖ Take the ice coin from sun member",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "user",
+              description: "Choose the user you want to take the coins from",
+              type: 6, // USER
+              required: true,
+            },
+            {
+              name: "amount",
+              description: "Type the amount of ice coins you want to take",
+              type: 4, // Integer
+              required: true,
+            },
+          ],
+        },
+        {
+          name: "generate_code",
+          description: "🧪︱ ➖ Generate an ice coin gift code",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "amount",
+              description: "The amount of ice coins you want to generate",
+              type: 4, // USER
+              required: true,
+            },
+            {
+              name: "duration",
+              description: "The duration of the gift code",
+              type: 4, // Integer
+              required: true,
+            },
+            {
+              name: "duration_type",
+              description: "Select the cooldown duration type",
+              required: true,
+              type: 3, // STRING
+              choices: [
+                {
+                  name: "minutes",
+                  value: "minute",
+                  description: "Set cooldown in minutes",
+                },
+                {
+                  name: "hours",
+                  value: "hour",
+                  description: "Set cooldown in hours",
+                },
+                {
+                  name: "days",
+                  value: "day",
+                  description: "Set cooldown in days",
+                },
+                {
+                  name: "weeks",
+                  value: "week",
+                  description: "Set cooldown in days",
+                },
+                {
+                  name: "months",
+                  value: "month",
+                  description: "Set cooldown in months",
+                },
+                {
+                  name: "years",
+                  value: "year",
+                  description: "Set cooldown in months",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "balance",
+          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "user",
+              description: "Choose the user you want to see his balance",
+              type: 6, // USER
+              required: true,
+            },
+          ],
+        },
+        {
+          name: "redeem",
+          description: `🧪︱ 📢 Redeem Ice coin code`,
+          options: [
+            {
+              name: "code",
+              description: "Enter the code here",
+              type: 3, // STRING
+              required: true,
+              min_length: 2,
+              max_length: 1000,
+            },
+          ],
+        },
+        {
+          name: "wallet",
+          description: `🧪︱ ⏱ Open your ice coins wallet`,
+          type: "CHAT_INPUT",
         },
         {
           name: "Info",
