@@ -33,7 +33,7 @@ module.exports = async (client, config) => {
             new MessageEmbed()
               .setColor(color.gray) // You can customize the color
               .setDescription(
-                `### ${emojis.wallet} Wallet\n${emojis.threadMark} Your current balance is: ${emojis.ic} **${formattedBalance}**`,
+                `### ${emojis.wallet} Wallet\n${emojis.threadMark} Your current balance is: ${emojis.ic} **${formattedBalance} Ice Coins**`,
               ),
           ],
           ephemeral: true,

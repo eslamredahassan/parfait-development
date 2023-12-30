@@ -183,6 +183,19 @@ module.exports = async (client, config) => {
           ],
         },
         {
+          name: "steal",
+          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "target",
+              description: "Choose the user you want to see his balance",
+              type: 6, // USER
+              required: true,
+            },
+          ],
+        },
+        {
           name: "redeem",
           description: `🧪︱ 📢 Redeem Ice coin code`,
           options: [
