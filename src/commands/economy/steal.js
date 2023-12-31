@@ -2,6 +2,8 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
 
 const fs = require("fs");
 const moment = require("moment");
+const cooldowns = new Map();
+const cooldownDurationInSeconds = 60;
 const wait = require("util").promisify(setTimeout);
 
 const Currency = require("../../../src/database/models/economy");
@@ -15,6 +17,39 @@ module.exports = async (client, config) => {
     if (interaction.isCommand() && interaction.commandName === "steal") {
       await interaction.deferReply({ ephemeral: true });
       const targetUser = interaction.options.getUser("target");
+      // Check if user is on cooldown
+      if (cooldowns.has(interaction.user.id)) {
+        // Retrieve cooldown expiration timestamp
+        const existingCooldownExpiration = cooldowns.get(interaction.user.id);
+
+        // Calculate remaining time in seconds
+        const remainingTimeInSeconds = Math.max(
+          0,
+          (existingCooldownExpiration - Date.now()) / 1000,
+        );
+
+        // Convert remaining time to a human-readable format
+        const remainingTimeFormatted = `<t:${Math.round(
+          Date.now() / 1000 + remainingTimeInSeconds,
+        )}:R>`;
+
+        return interaction.editReply({
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.warning} Cooldown!`)
+              .setDescription(
+                `${emojis.threadMark} You're on cooldown, That will expire ${remainingTimeFormatted}.`,
+              ),
+          ],
+          ephemeral: true,
+          components: [],
+        });
+      }
+
+      // Set new cooldown expiration timestamp
+      const cooldownExpiration = Date.now() + cooldownDurationInSeconds * 1000;
+      cooldowns.set(interaction.user.id, cooldownExpiration);
 
       // Check if a valid target user is mentioned
       if (
@@ -102,6 +137,10 @@ module.exports = async (client, config) => {
                 ephemeral: true,
                 components: [],
               });
+              // Remove user from cooldown after the command is executed
+              setTimeout(() => {
+                cooldowns.delete(interaction.user.id);
+              }, cooldownDuration);
             }
           });
 
