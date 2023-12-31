@@ -66,8 +66,8 @@ module.exports = async (client, config) => {
           });
         }
 
-        // Simulate stealing (50% chance)
-        const successfulSteal = Math.random() < 0.5;
+        // Simulate stealing (30% chance)
+        const successfulSteal = Math.random() < 0.3;
 
         if (successfulSteal) {
           // Calculate a random amount to steal (up to half of the target's balance)
