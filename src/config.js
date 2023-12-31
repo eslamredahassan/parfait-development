@@ -64,6 +64,10 @@ module.exports = {
   database: process.env.db,
   //--------------------------------------//,
 
+  //-------------| Market |-------------//
+  iceShieldLv1: process.env.iceShieldLv1,
+  //--------------------------------------//,
+
   //-------------| API Keys |-------------//
   OpenAI_key: process.env.OpenAI_Key,
   Lang: process.env.Lang_Key,
