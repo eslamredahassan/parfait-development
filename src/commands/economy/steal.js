@@ -66,8 +66,8 @@ module.exports = async (client, config) => {
           });
         }
 
-        // Simulate stealing (30% chance)
-        const successfulSteal = Math.random() < 0.3;
+        // Simulate stealing (10% chance)
+        const successfulSteal = Math.random() < 0.1;
 
         if (successfulSteal) {
           // Calculate a random amount to steal (up to half of the target's balance)
@@ -117,7 +117,7 @@ module.exports = async (client, config) => {
             `\x1b[33m 〢`,
             `\x1b[33m ${moment(Date.now()).format("LT")}`,
             `\x1b[31m ${interaction.user.username}`,
-            `\x1b[33m successfully stole`,
+            `\x1b[33m Stole`,
             `\x1b[31m ${stolenAmount} Ice Coins`,
             `\x1b[36m from`,
             `\x1b[35m ${targetUser.username}`,

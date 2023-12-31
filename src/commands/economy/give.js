@@ -127,6 +127,7 @@ module.exports = async (client, config) => {
             `\x1b[33m 〢`,
             `\x1b[33m ${moment(Date.now()).format("LT")}`,
             `\x1b[31m ${interaction.user.username}`,
+            `\x1b[36m gave`,
             `\x1b[33m ${iceCoins} Ice Coins`,
             `\x1b[36m To`,
             `\x1b[35m ${user.username}`,
