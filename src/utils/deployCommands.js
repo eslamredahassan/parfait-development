@@ -196,6 +196,25 @@ module.exports = async (client, config) => {
           ],
         },
         {
+          name: "add_level",
+          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "user",
+              description: "Choose the user you want to see his balance",
+              type: 6, // USER
+              required: true,
+            },
+            {
+              name: "level",
+              description: "Choose the user you want to see his balance",
+              type: 4, // USER
+              required: true,
+            },
+          ],
+        },
+        {
           name: "redeem",
           description: `🧪︱ 📢 Redeem Ice coin code`,
           options: [
