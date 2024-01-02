@@ -15,7 +15,7 @@ module.exports = async (client, config) => {
   let guild = client.guilds.cache.get(config.guildID);
 
   const allowedChannels = ["1081224928440893571"];
-  const allowedVoiceChannels = ["1191498921197965332"]; // Use the channel ID, not an array
+  const allowedVoiceChannel = "1191498921197965332"; // Use the channel ID, not an array
 
   // Function to handle XP addition for voice state updates
   const handleVoiceXP = async (userId) => {
@@ -69,7 +69,6 @@ module.exports = async (client, config) => {
       }
     }
   };
-
   // Listen for message events
   client.on("messageCreate", async (message) => {
     // Check if the message author is a bot
@@ -94,7 +93,7 @@ module.exports = async (client, config) => {
       );
 
       // Check for level up
-      const xpRequiredForNextLevel = 1000; // Change this to your desired XP required for the next level
+      const xpRequiredForNextLevel = 10000; // Change this to your desired XP required for the next level
       if (user.xp >= xpRequiredForNextLevel) {
         // Calculate the number of levels gained
         const levelsGained = Math.floor(user.xp / xpRequiredForNextLevel);
@@ -141,7 +140,7 @@ module.exports = async (client, config) => {
     if (
       newState.member &&
       newState.member.roles.cache.has(config.SquadSUN) &&
-      newState.channelId === allowedVoiceChannels
+      newState.channelId === allowedVoiceChannel
     ) {
       // Call the common function to handle XP addition
       await handleVoiceXP(newState.member.id);
@@ -150,7 +149,7 @@ module.exports = async (client, config) => {
 
   // Set up interval to grant XP every minute while in the voice channel
   setInterval(async () => {
-    const voiceChannel = guild.channels.cache.get(allowedVoiceChannels);
+    const voiceChannel = guild.channels.cache.get(allowedVoiceChannel);
     if (!voiceChannel) return;
 
     // Iterate through members in the voice channel
@@ -158,7 +157,7 @@ module.exports = async (client, config) => {
       // Check if the user is in the allowed voice channel and has the SquadSUN role
       if (
         member.roles.cache.has(config.SquadSUN) &&
-        member.voice.channelId === allowedVoiceChannels
+        member.voice.channelId === allowedVoiceChannel
       ) {
         // Call the common function to handle XP addition
         await handleVoiceXP(member.id);

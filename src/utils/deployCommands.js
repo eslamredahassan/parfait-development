@@ -75,19 +75,24 @@ module.exports = async (client, config) => {
           ],
         },
         {
+          name: "wallet",
+          description: `🧪︱ 👜 Open your ice coins wallet`,
+          type: "CHAT_INPUT",
+        },
+        {
           name: "give",
-          description: "🧪︱ ➖ Give ice coin to sun member",
+          description: "🧪︱ 💸 Give ice coin to sun member",
           type: "CHAT_INPUT",
           options: [
             {
               name: "user",
-              description: "Choose the user you want to give",
+              description: "👤 Choose the user you want to give",
               type: 6, // USER
               required: true,
             },
             {
               name: "ice_coins",
-              description: "Type the amount of ice coins you want to give",
+              description: "❄ Type the amount of ice coins you want to give",
               type: 4, // Integer
               required: true,
             },
@@ -95,7 +100,7 @@ module.exports = async (client, config) => {
         },
         {
           name: "take",
-          description: "🧪︱ ➖ Take the ice coin from sun member",
+          description: "🧪︱ ✂ Take the ice coin from sun member",
           type: "CHAT_INPUT",
           options: [
             {
@@ -114,24 +119,24 @@ module.exports = async (client, config) => {
         },
         {
           name: "generate_code",
-          description: "🧪︱ ➖ Generate an ice coin gift code",
+          description: "🧪︱ 🎁 Generate an ice coin gift code",
           type: "CHAT_INPUT",
           options: [
             {
               name: "amount",
-              description: "The amount of ice coins you want to generate",
+              description: "🧮 The amount of ice coins you want to generate",
               type: 4, // USER
               required: true,
             },
             {
               name: "duration",
-              description: "The duration of the gift code",
+              description: "⏱ The duration of the gift code",
               type: 4, // Integer
               required: true,
             },
             {
               name: "duration_type",
-              description: "Select the cooldown duration type",
+              description: "⚙ Select the cooldown duration type",
               required: true,
               type: 3, // STRING
               choices: [
@@ -171,12 +176,14 @@ module.exports = async (client, config) => {
         },
         {
           name: "balance",
-          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          description:
+            "🧪︱ 🕵️ See the ice coins balance and levels for sun member",
           type: "CHAT_INPUT",
           options: [
             {
               name: "user",
-              description: "Choose the user you want to see his balance",
+              description:
+                "👤 Choose the user you want to see his balance and level",
               type: 6, // USER
               required: true,
             },
@@ -184,31 +191,50 @@ module.exports = async (client, config) => {
         },
         {
           name: "steal",
-          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          description: "🧪︱ 🥷 See the ice coins balance for sun member",
           type: "CHAT_INPUT",
           options: [
             {
               name: "target",
-              description: "Choose the user you want to see his balance",
+              description: "🎯 Choose the user you want to see his balance",
               type: 6, // USER
               required: true,
             },
           ],
         },
         {
-          name: "add_level",
-          description: "🧪︱ ➖ See the ice coins balance for sun member",
+          name: "increase",
+          description: "🧪︱ ➕ increase sun member's level",
           type: "CHAT_INPUT",
           options: [
             {
               name: "user",
-              description: "Choose the user you want to see his balance",
+              description: "👤 Choose the user you want to increase his level",
               type: 6, // USER
               required: true,
             },
             {
               name: "level",
-              description: "Choose the user you want to see his balance",
+              description: "🧮 Type the amount of level you want to increase",
+              type: 4, // USER
+              required: true,
+            },
+          ],
+        },
+        {
+          name: "decrease",
+          description: "🧪︱ ➖ decrease sun member's level",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "user",
+              description: "👤 Choose the user you want to decrease his level",
+              type: 6, // USER
+              required: true,
+            },
+            {
+              name: "level",
+              description: "🧮 Type the amount of level you want to decrease",
               type: 4, // USER
               required: true,
             },
@@ -216,22 +242,17 @@ module.exports = async (client, config) => {
         },
         {
           name: "redeem",
-          description: `🧪︱ 📢 Redeem Ice coin code`,
+          description: `🧪︱ 🧧 Redeem Ice coin code`,
           options: [
             {
               name: "code",
-              description: "Enter the code here",
+              description: "💳 Enter the code here",
               type: 3, // STRING
               required: true,
               min_length: 2,
               max_length: 1000,
             },
           ],
-        },
-        {
-          name: "wallet",
-          description: `🧪︱ ⏱ Open your ice coins wallet`,
-          type: "CHAT_INPUT",
         },
         {
           name: "Info",
@@ -259,7 +280,7 @@ module.exports = async (client, config) => {
           options: [
             {
               name: "channel",
-              description: " Choose channel you want to send your message in",
+              description: "Choose channel you want to send your message in",
               type: 7, // CHANNEL
               required: true,
             },

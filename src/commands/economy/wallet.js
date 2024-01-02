@@ -34,7 +34,7 @@ module.exports = async (client, config) => {
         const userXP = userBalance.xp || 0;
 
         // Calculate remaining XP to achieve the next level
-        const xpRequiredForNextLevel = 1000; // Change this to your desired XP required for the next level
+        const xpRequiredForNextLevel = 10000; // Change this to your desired XP required for the next level
         const remainingXP =
           xpRequiredForNextLevel - (userXP % xpRequiredForNextLevel);
 
