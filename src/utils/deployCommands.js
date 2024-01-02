@@ -123,6 +123,24 @@ module.exports = async (client, config) => {
           type: "CHAT_INPUT",
           options: [
             {
+              name: "code_type",
+              description: "⚙ Select the cooldown duration type",
+              required: true,
+              type: 3, // STRING
+              choices: [
+                {
+                  name: "ice coins",
+                  value: "ice",
+                  description: "Set cooldown in minutes",
+                },
+                {
+                  name: "xp",
+                  value: "xp",
+                  description: "Set cooldown in hours",
+                },
+              ],
+            },
+            {
               name: "amount",
               description: "🧮 The amount of ice coins you want to generate",
               type: 4, // USER

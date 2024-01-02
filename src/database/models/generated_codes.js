@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 
 const generatedCodeSchema = new mongoose.Schema({
+  type: { type: String, required: true },
   code: { type: String, required: true, unique: true },
   amount: { type: Number, required: true },
   duration: { type: Number, required: true },

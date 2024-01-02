@@ -16,6 +16,7 @@ module.exports = async (client, config) => {
       interaction.commandName === "generate_code"
     ) {
       await interaction.deferReply({ ephemeral: true });
+
       // Check if the user has the required permissions
       const perms = [`${config.devRole}`];
       const staff = interaction.guild.members.cache.get(interaction.user.id);
@@ -38,16 +39,23 @@ module.exports = async (client, config) => {
       const amount = interaction.options.getInteger("amount");
       const duration = interaction.options.getInteger("duration");
       const durationType = interaction.options.getString("duration_type");
+      const codeType = interaction.options.getString("code_type");
 
       // Validate options
-      if (isNaN(amount) || isNaN(duration) || amount <= 0 || duration <= 0) {
+      if (
+        isNaN(amount) ||
+        isNaN(duration) ||
+        amount <= 0 ||
+        duration <= 0 ||
+        !["ice", "xp"].includes(codeType)
+      ) {
         return interaction.editReply({
           embeds: [
             new MessageEmbed()
               .setColor(color.gray)
               .setTitle(`${emojis.cross} Invalid Options`)
               .setDescription(
-                `${emojis.threadMark} Please provide valid positive numbers for amount and duration.`,
+                `${emojis.threadMark} Please provide valid positive numbers for amount and duration, and select a valid code type (ice or xp).`,
               ),
           ],
           ephemeral: true,
@@ -69,10 +77,30 @@ module.exports = async (client, config) => {
             new MessageEmbed()
               .setColor(color.gray)
               .setTitle(`${emojis.cross} Invalid Duration Type`)
-              .Description(
+              .setDescription(
                 `${
                   emojis.threadMark
                 } Please provide a valid duration type: ${validDurationTypes.join(
+                  ", ",
+                )}.`,
+              ),
+          ],
+          ephemeral: true,
+        });
+      }
+
+      // Validate code type
+      const validCodeTypes = ["ice", "xp"];
+      if (!validCodeTypes.includes(codeType)) {
+        return interaction.editReply({
+          embeds: [
+            new MessageEmbed()
+              .setColor(color.gray)
+              .setTitle(`${emojis.cross} Invalid Code Type`)
+              .setDescription(
+                `${
+                  emojis.threadMark
+                } Please provide a valid code type: ${validCodeTypes.join(
                   ", ",
                 )}.`,
               ),
@@ -116,11 +144,13 @@ module.exports = async (client, config) => {
           amount,
           duration: durationInSeconds,
           expiration: new Date(Date.now() + durationInSeconds * 1000),
+          type: codeType,
         });
 
         // Save the code details to the database
         await generatedCodeModel.save();
         const formattedBalance = amount.toLocaleString();
+        const typeLabel = codeType === "ice" ? "Ice Coins" : "XP";
         // Calculate the expiration time in milliseconds
         const expirationTime = Date.now() + durationInSeconds * 1000;
         // Send a response to the user
@@ -134,7 +164,7 @@ module.exports = async (client, config) => {
                   emojis.threadMarkmid
                 } The generated code is \`${code}\` that will give ${
                   emojis.ic
-                } ${formattedBalance} Ice Coins\n${
+                } ${formattedBalance} ${typeLabel}\n${
                   emojis.threadMark
                 } The code will expire <t:${Math.floor(
                   expirationTime / 1000,
@@ -150,7 +180,7 @@ module.exports = async (client, config) => {
           `\x1b[31m ${interaction.user.username}`,
           `\x1b[33m Created`,
           `\x1b[34m ${code}`,
-          `\x1b[33m ${formattedBalance}IC`,
+          `\x1b[33m ${formattedBalance}${typeLabel}`,
           `\x1b[31m ends`,
           `\x1b[33m ${moment(expirationTime).fromNow()}`,
         );

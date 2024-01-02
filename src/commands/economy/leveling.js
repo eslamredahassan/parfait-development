@@ -19,8 +19,8 @@ module.exports = async (client, config) => {
 
   // Function to handle XP addition for voice state updates
   const handleVoiceXP = async (userId) => {
-    // Generate random XP between 15 and 25 for each event
-    const xpToAdd = Math.floor(Math.random() * (25 - 15 + 1) + 15);
+    // Generate random XP between 5 and 10 for each event
+    const xpToAdd = Math.floor(Math.random() * (10 - 5 + 1) + 5);
 
     // Find or create the user in the database
     const user = await Currency.findOneAndUpdate(
@@ -67,6 +67,14 @@ module.exports = async (client, config) => {
           components: [],
         });
       }
+      console.log(
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m ${discordUser.username}`,
+        `\x1b[32m Level Up to`,
+        `\x1b[33m ${user.level} level`,
+      );
     }
   };
   // Listen for message events

@@ -14,6 +14,7 @@ module.exports = async (client, config) => {
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "redeem") {
       await interaction.deferReply({ ephemeral: true });
+
       // Get the code option from the command
       const code = interaction.options.getString("code");
 
@@ -71,16 +72,28 @@ module.exports = async (client, config) => {
             userId: interaction.user.id,
           });
 
-          // Add the redeemed amount to the user's balance
+          // Determine the type of the code (ice or xp)
+          const codeType = foundCode.type;
+
+          // Add the redeemed amount to the user's balance based on the code type
           if (userBalance) {
-            userBalance.iceCoins += foundCode.amount;
+            if (codeType === "ice") {
+              userBalance.iceCoins += foundCode.amount;
+            } else if (codeType === "xp") {
+              userBalance.xp += foundCode.amount;
+            }
+
             await userBalance.save();
           } else {
             // If the user doesn't have a record, create one
-            await Currency.create({
+            const balanceData = {
               userId: interaction.user.id,
-              iceCoins: foundCode.amount,
-            });
+            };
+
+            // Set the balance based on the code type
+            balanceData[`${codeType}Coins`] = foundCode.amount;
+
+            await Currency.create(balanceData);
           }
 
           // Update the code status to include the user ID in the redeemed array
@@ -93,21 +106,34 @@ module.exports = async (client, config) => {
           });
 
           const formattedBalance = updatedBalance
-            ? updatedBalance.iceCoins.toLocaleString()
+            ? updatedBalance[`${codeType}Coins`]?.toLocaleString() || 0
             : 0;
+
+          // Customize the reply message based on the code type
+          let title = "";
+          let description = "";
+          let embedColor = color.gray;
+
+          if (codeType === "ice") {
+            embedColor = color.gray; // Change to the color you desire for ice codes
+            title = `${emojis.check} Code Redeemed Successfully`;
+            description = `${emojis.threadMark} You've received ${
+              emojis.ic
+            } ${foundCode.amount.toLocaleString()} Ice Coins, and your balance is now ${formattedBalance}`;
+          } else if (codeType === "xp") {
+            embedColor = color.gray; // Change to the color you desire for xp codes
+            title = `${emojis.check} Code Redeemed Successfully`;
+            description = `${emojis.threadMark} You've received ${
+              emojis.levelUp
+            } ${foundCode.amount.toLocaleString()} XP Points, and your total XP is now ${userBalance.xp.toLocaleString()} XP`;
+          }
 
           return interaction.editReply({
             embeds: [
               new MessageEmbed()
-                .setColor(color.gray)
-                .setTitle(`${emojis.check} Ice Code Redeemed Successfully`)
-                .setDescription(
-                  `${emojis.threadMark} You've received ${
-                    emojis.ic
-                  } ${foundCode.amount.toLocaleString()} Ice Coins, and your balance is now ${
-                    emojis.ic
-                  } ${formattedBalance}`,
-                ),
+                .setColor(embedColor)
+                .setTitle(title)
+                .setDescription(description),
             ],
             ephemeral: true,
           });
