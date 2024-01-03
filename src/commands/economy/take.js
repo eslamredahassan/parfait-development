@@ -1,6 +1,7 @@
 const { MessageEmbed } = require("discord.js");
 const moment = require("moment");
 const fs = require("fs");
+const wait = require("util").promisify(setTimeout);
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
@@ -138,6 +139,14 @@ module.exports = async (client, config) => {
           ephemeral: true,
         });
       }
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 10 * 1000); // 10000 milliseconds = 10 seconds
     }
   });
 };

@@ -123,6 +123,9 @@ module.exports = async (client, config) => {
               //this is the important part
               ephemeral: true,
             });
+            // Auto delete the reply after 1 minute
+            await wait(30 * 1000);
+            await interaction.deleteReply();
           }
           cooldown.add(interaction.user.id);
           setTimeout(() => {
@@ -151,6 +154,14 @@ module.exports = async (client, config) => {
           components: [],
         });
       }
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 10 * 1000); // 10000 milliseconds = 10 seconds
     }
   });
 };

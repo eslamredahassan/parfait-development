@@ -314,24 +314,20 @@ module.exports = async (client, config) => {
             ephemeral: true,
           });
         } else {
-          await interaction
-            .reply({
-              embeds: [
-                {
-                  title: `${emojis.alert} Permission denied`,
-                  description: errors.permsError,
-                  color: color.gray,
-                },
-              ],
-              //this is the important part
-              ephemeral: true,
-            })
-            .catch((error) =>
-              console.error(
-                "Error in permission interaction reply:",
-                error.message,
-              ),
-            );
+          await interaction.reply({
+            embeds: [
+              {
+                title: `${emojis.alert} Permission denied`,
+                description: errors.permsError,
+                color: color.gray,
+              },
+            ],
+            //this is the important part
+            ephemeral: true,
+          });
+          // Auto delete the reply after 1 minute
+          await wait(30 * 1000);
+          await interaction.deleteReply();
           console.log(
             `\x1b[0m`,
             `\x1b[33m 〢`,
@@ -353,6 +349,14 @@ module.exports = async (client, config) => {
           ephemeral: true,
         });
       }
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 10 * 1000); // 10000 milliseconds = 10 seconds
     }
   });
 };

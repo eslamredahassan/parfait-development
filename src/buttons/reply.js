@@ -102,7 +102,7 @@ module.exports = async (client, config) => {
           ephemeral: false,
         });
 
-        return await interaction.reply({
+        await interaction.reply({
           embeds: [
             {
               title: `${emojis.check} Message Sent`,
@@ -125,11 +125,19 @@ module.exports = async (client, config) => {
         });
       } catch (error) {
         console.log("Error in reply to user:", error.message);
-        return await interaction.reply({
+        await interaction.reply({
           content: `The ${user} Dms Were Closed.`,
           ephemeral: true,
         });
       }
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 10 * 1000); // 10000 milliseconds = 10 seconds
     }
   });
 };

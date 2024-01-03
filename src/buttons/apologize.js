@@ -4,7 +4,7 @@ const {
   Modal,
   TextInputComponent,
 } = require("discord.js");
-
+const wait = require("util").promisify(setTimeout);
 const moment = require("moment");
 
 const messages = require("../assest/messages.js");
@@ -199,6 +199,14 @@ module.exports = async (client, config) => {
           //this is the important part
           ephemeral: true,
         });
+        // Auto-dismiss after 10 seconds
+        setTimeout(async () => {
+          try {
+            await interaction.deleteReply();
+          } catch (error) {
+            console.error("Error in auto-dismiss:", error);
+          }
+        }, 10000); // 10000 milliseconds = 10 seconds
       }
     } catch (error) {
       console.log(

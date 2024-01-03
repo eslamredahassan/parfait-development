@@ -2,6 +2,7 @@ const { MessageEmbed, MessageAttachment } = require("discord.js");
 const moment = require("moment");
 const fs = require("fs");
 const { createCanvas } = require("canvas");
+const wait = require("util").promisify(setTimeout);
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
 const color = settings.colors;
@@ -75,7 +76,7 @@ module.exports = async (client, config) => {
           .setColor(color.gray)
           .setTitle(`${emojis.wallet} Wallet`)
           .setDescription(
-            `${emojis.threadMark} Your current balance is: ${emojis.ic} **${formattedBalance} Ice Coins**`,
+            `${emojis.threadMark} ${emojis.ic} **${formattedBalance} Ice Coins**`,
           )
           .setImage("attachment://progress.png");
 
@@ -86,7 +87,13 @@ module.exports = async (client, config) => {
           ephemeral: true,
         });
       } catch (error) {
-        console.error("Error in wallet command:", error);
+        console.error(
+          `\x1b[0m`,
+          `\x1b[33m 〢`,
+          `\x1b[33m ${moment(Date.now()).format("LT")}`,
+          `\x1b[31m Error in wallet command:`,
+          `\x1b[33m ${error.message}`,
+        );
         await interaction.editReply({
           embeds: [
             new MessageEmbed()
@@ -99,6 +106,14 @@ module.exports = async (client, config) => {
           ephemeral: true,
         });
       }
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 30 * 1000); // 10000 milliseconds = 30 seconds
     }
   });
 };
