@@ -335,9 +335,7 @@ module.exports = async (client, config) => {
         `\x1b[35m applyed`,
       ),
         //// Add Waitlist Role ///
-        await interaction.member.roles
-          .add(config.waitRole)
-          .catch(() => console.log("Error Line 3478"));
+        await interaction.member.roles.add(config.waitRole);
       const waitRole = interaction.guild.roles.cache.get(config.waitRole);
       console.log(
         `\x1b[0m`,
@@ -475,6 +473,14 @@ module.exports = async (client, config) => {
         }
       }
       ////----------------------------////
+      // Auto-dismiss after 10 seconds
+      setTimeout(async () => {
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          console.error("Error in auto-dismiss:", error);
+        }
+      }, 10 * 1000); // 10000 milliseconds = 10 seconds
     }
   });
 };
