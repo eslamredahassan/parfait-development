@@ -75,6 +75,29 @@ module.exports = async (client, config) => {
           ],
         },
         {
+          name: "buy",
+          description: "🛒 Buy items using Ice coins",
+          type: "CHAT_INPUT",
+          options: [
+            {
+              name: "item",
+              description: "📦 🛒 Buy items using Ice coins",
+              type: 3, // STRING
+              required: true,
+              choices: [
+                {
+                  name: "Uniqe Role",
+                  value: "#roles",
+                },
+                {
+                  name: "existing_role",
+                  value: "existing_role",
+                },
+              ],
+            },
+          ],
+        },
+        {
           name: "wallet",
           description: `🧪︱ 👜 Open your ice coins wallet`,
           type: "CHAT_INPUT",
