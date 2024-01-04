@@ -479,13 +479,11 @@ module.exports = async (client, config) => {
         q6: "When did you start playing Smash Legends?",
         q7: "Have you read the requirements?",
       };
-
       for (const [questionKey, question] of Object.entries(questions)) {
         // Ask each question in sequence
         await thread.send({
           content: `${question}`,
         });
-
         // Wait for the user's response (adjust the timeout if needed)
         try {
           const collected = await thread.awaitMessages({
