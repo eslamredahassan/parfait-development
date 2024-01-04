@@ -370,73 +370,6 @@ module.exports = async (client, config) => {
           .setEmoji(emojis.next),
       ]);
 
-      await thread.sendTyping();
-      await wait(5000);
-
-      // Ask the questions directly after a short delay
-
-      const questions = {
-        q0: `Hi ${interaction.user} We need to complete some information in your application, are you ready?`,
-        q1: "Please send a screenshot from your in-game profile here",
-        q2: `Tell us when you are available for a tryout by our staff`,
-        q3: "What are your usual days of play and hours?",
-        q4: "Have you joined any clan before?",
-        q5: "Where are you from?",
-        q6: "When did you start playing Smash Legends?",
-        q7: "Have you read the requirements?",
-      };
-
-      for (const [questionKey, question] of Object.entries(questions)) {
-        // Ask each question in sequence
-        await thread.send({
-          content: `${question}`,
-        });
-
-        // Wait for the user's response (adjust the timeout if needed)
-        try {
-          const collected = await thread.awaitMessages({
-            thread: filter,
-            time: 86400000, // 24 hour timeout
-            max: 1,
-            errors: ["time"],
-          });
-
-          const userResponse = collected.first().content;
-
-          // Process the user's response as needed
-          switch (questionKey) {
-            case "q4": // Have you joined any clan before?
-              if (userResponse.toLowerCase() === "yes") {
-                // If the user answers "yes", ask for the name of the previous clan
-                await thread.send({
-                  content: "What is the name of your previous clan?",
-                });
-
-                // Wait for the user's response to the previous clan question
-                const collectedClan = await thread.awaitMessages({
-                  thread: filter,
-                  time: 86400000, // 24 hour timeout
-                  max: 1,
-                  errors: ["time"],
-                });
-
-                const previousClan = collectedClan.first().content;
-                // Process the user's response to the previous clan question
-                // You can handle the user's response to the previous clan question here
-              }
-              break;
-            // Add additional cases for other questions if needed
-          }
-        } catch (error) {
-          await thread.send(`Time is Over for ${question}`);
-        }
-      }
-
-      // Send a thanks message after all questions are answered
-      await thread.send({
-        content: `Thank you ${interaction.user} for providing your responses <@&${config.staffSun}> will review your application soon.`,
-      });
-
       if (finishChannel.id) {
         const app = await finishChannel
           .send({ embeds: [application], components: [firstRow, secondRow] })
@@ -531,6 +464,72 @@ module.exports = async (client, config) => {
           await Counter.create({ count: 1 });
         }
       }
+
+      await thread.sendTyping();
+      await wait(5000);
+
+      // Ask the questions directly after a short delay
+      const questions = {
+        q0: `Hi ${interaction.user} We need to complete some information in your application, are you ready?`,
+        q1: "Please send a screenshot from your in-game profile here",
+        q2: `Tell us when you are available for a tryout by our staff`,
+        q3: "What are your usual days of play and hours?",
+        q4: "Have you joined any clan before?",
+        q5: "Where are you from?",
+        q6: "When did you start playing Smash Legends?",
+        q7: "Have you read the requirements?",
+      };
+
+      for (const [questionKey, question] of Object.entries(questions)) {
+        // Ask each question in sequence
+        await thread.send({
+          content: `${question}`,
+        });
+
+        // Wait for the user's response (adjust the timeout if needed)
+        try {
+          const collected = await thread.awaitMessages({
+            thread: filter,
+            time: 86400000, // 24 hour timeout
+            max: 1,
+            errors: ["time"],
+          });
+
+          const userResponse = collected.first().content;
+
+          // Process the user's response as needed
+          switch (questionKey) {
+            case "q4": // Have you joined any clan before?
+              if (userResponse.toLowerCase() === "yes") {
+                // If the user answers "yes", ask for the name of the previous clan
+                await thread.send({
+                  content: "What is the name of your previous clan?",
+                });
+
+                // Wait for the user's response to the previous clan question
+                const collectedClan = await thread.awaitMessages({
+                  thread: filter,
+                  time: 86400000, // 24 hour timeout
+                  max: 1,
+                  errors: ["time"],
+                });
+
+                const previousClan = collectedClan.first().content;
+                // Process the user's response to the previous clan question
+                // You can handle the user's response to the previous clan question here
+              }
+              break;
+            // Add additional cases for other questions if needed
+          }
+        } catch (error) {
+          await thread.send(`Time is Over for ${questionKey}`);
+        }
+      }
+
+      // Send a thanks message after all questions are answered
+      await thread.send({
+        content: `Thank you ${interaction.user} for providing your responses <@&${config.staffSun}> will review your application soon.`,
+      });
       ////----------------------------////
     }
   });
