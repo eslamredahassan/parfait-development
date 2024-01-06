@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Add link to favicon -->
+    <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="path/to/your/favicon.ico" type="image/x-icon">
+    
+    <!-- Include Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #15121f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Make the content full height of the viewport */
+            position: relative; /* Added position relative to allow absolute positioning within it */
+        }
+
+        .rounded-square {
+            background-color: #232435;
+            width: 1375px; /* Adjust the size as needed */
+            height: 700px; /* Adjust the size as needed */
+            border-radius: 20px; /* Adjust the border-radius for rounded corners */
+            position: absolute;
+            top: 95px; /* Adjust the top position */
+            left: 200px; /* Adjust the left position */
+        }
+        .rounded2-square {
+            background-color: #1a1a29;
+            width: 295px; /* Adjust the size as needed */
+            height: 220px; /* Adjust the size as needed */
+            border-radius: 20px; /* Adjust the border-radius for rounded corners */
+            position: absolute;
+            top: 155px; /* Adjust the top position */
+            left: 250px; /* Adjust the left position */
+            padding: 20px; /* Added padding for better layout */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 50px; /* Adjust the size as needed */
+            height: 50px; /* Adjust the size as needed */
+            border-radius: 50%; /* Make it round */
+        }
+
+        .bot-text {
+            position: absolute;
+            top: 25px; /* Adjust the top position */
+            left: 70px; /* Adjust the left position */
+            font-size: 20px; /* Adjust the font size as needed */
+            font-weight: bold;
+        }
+
+        .user-details {
+            position: absolute;
+            top: 95px; /* Adjust the top position */
+            left: 50px; /* Adjust the left position */
+            display: flex;
+            flex-direction: column; /* Make the username below the user image */
+            align-items: center;
+        }
+
+        .user-image {
+            width: 65px; /* Adjust the size as needed */
+            height: 65px; /* Adjust the size as needed */
+            border-radius: 25%; /* Make it round */
+            margin-bottom: 7px; /* Add margin between image and username */
+        }
+
+        .username {
+            font-size: 18px; /* Adjust the font size as needed */
+            font-weight: bold;
+            color: #b13c75;
+        }
+
+        .links-container {
+            position: absolute;
+            top: 220px; /* Adjust the top position */
+            left: 32px; /* Adjust the left position */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .custom-link {
+            color: #73727a;
+            text-decoration: none; /* Remove the underline */
+            font-size: 14px;
+            margin-bottom: 32px;
+            cursor: pointer;
+            transition: color 0.3s ease; /* Smooth transition for color change */
+            position: relative;
+        }
+
+        .custom-link:hover {
+            color: #fff; /* Change color on hover, active, and focus states */
+            z-index: 1;
+        }
+
+        .custom-link:hover::before {
+            content: "";
+            position: absolute;
+            top: -7px;
+            left: -20px;
+            right: -55px;
+            bottom: -7px;
+            background-color: #b13c75; /* Background color instead of border */
+            border-radius: 8px; /* Adjust the border-radius for rounded corners */
+            z-index: -2;
+        }
+
+        .server-usage {
+            font-size: 14px;
+            color: #b13c75;
+            margin-top: 170px;
+            margin-left: 83px;
+        }
+
+        .icon {
+            margin-right: 10px; /* Adjust the margin as needed */
+        }
+    </style>
+</head>
+<body>
+    <img src="https://i.imgur.com/CfaKYXa.png" alt="Parfait bot" class="logo">
+    <div class="rounded-square"></div>
+    <div class="rounded2-square">
+        <div class="server-usage">Server Usage</div>
+        <!-- Add other server-related information here -->
+    </div>
+    <div class="bot-text">Parfait Bot</div>
+
+    <!-- User details section -->
+    <div class="user-details">
+        <img src="https://i.imgur.com/l3pqgto.jpg" alt="User Image" class="user-image">
+        <div class="username">Username</div>
+    </div>
+
+    <!-- Links section -->
+    <div class="links-container">
+        <a href="dashboard" class="custom-link"><i class="icon fas fa-snowflake"></i>Dashboard</a>
+        <a href="#" class="custom-link"><i class="icon fas fa-id-card"></i>Application</a>
+        <a href="#" class="custom-link"><i class="icon fas fa-code"></i>Commands</a>
+        <a href="#" class="custom-link"><i class="icon fas fa-gear"></i>bot Settings</a>
+    </div>
+</body>
+</html>

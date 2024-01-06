@@ -33,7 +33,7 @@ const client = new Client({
 
 client.on("ready", async () => {
   // Read all files in the directory
-  server(client, config);
+  //server(client, config);
   antiCrash(client, config);
   deployCommands(client, config);
 
