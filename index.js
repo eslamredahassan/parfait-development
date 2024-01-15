@@ -83,7 +83,6 @@ client.on("ready", async () => {
       }
     });
   });
-
   // The directory where your select menu files are stored
   const eventsDirectory = path.join(__dirname, "src/events");
   // Read all files in the directory

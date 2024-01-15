@@ -4,15 +4,16 @@ const config = require("../config");
 
 const databaseConnection = async () => {
   let retryCount = 0;
-  const maxRetries = 5;
-  const retryInterval = 20 * 1000; // 20 seconds in milliseconds
+  const maxRetries = 10;
+  const retryInterval = 10 * 1000; // 20 seconds in milliseconds
 
   const connection = async () => {
     try {
       await mongoose.connect(config.database, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        dbName: "ParfaitDatabaseDev",
+        serverSelectionTimeoutMS: 120000,
+        //dbName: "ParfaitDatabaseDev",
       });
 
       console.log(
@@ -50,7 +51,7 @@ const databaseConnection = async () => {
           `\x1b[31m Max retries reached`,
           `\x1b[32m Unable to connect to the database`,
         );
-        process.exit(1); // You can handle this differently based on your application's needs
+        //process.exit(1); // You can handle this differently based on your application's needs
       }
     }
   };
