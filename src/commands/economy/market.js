@@ -6,9 +6,10 @@ const {
 } = require("discord.js");
 const moment = require("moment");
 const fs = require("fs");
+const colorConvert = require("color-convert"); // npm install color-convert
 
 const settings = JSON.parse(fs.readFileSync("./src/assest/settings.json"));
-const color = settings.colors;
+const color = settings.colors; // Assuming this is a different variable
 const emojis = settings.emojis;
 const banners = settings.banners;
 
@@ -27,15 +28,50 @@ function determineIceCoinsRequired(selectedValue) {
     case "#r1":
       return 15099;
     case "#r2":
-      return 1875;
+      return 18075;
     case "#r3":
       return 20999;
     case "#r4":
-      return 2287;
+      return 22087;
+    case "#r5":
+      return 28054;
+    case "#r6":
+      return 29099;
     case "#r7":
-      return 2854;
+      return 29999;
+    case "#r8":
+      return 30099;
     default:
       return 0;
+  }
+}
+
+function formatPrice(price) {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function hexToColorName(hexColor) {
+  try {
+    // Convert hex color to RGB
+    const rgbColor = colorConvert.hex.rgb(hexColor.substring(1));
+
+    // Find the closest color name using color-convert library
+    const colorName = colorConvert.rgb.keyword(rgbColor);
+
+    if (!colorName) {
+      return "Unknown Color";
+    }
+
+    // Capitalize the first letter of each word and add space
+    const formattedColorName = colorName
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    return formattedColorName;
+  } catch (error) {
+    console.error("Error in hexToColorName:", error);
+    return "Unknown Color";
   }
 }
 
@@ -44,6 +80,7 @@ module.exports = async (client, config) => {
 
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand() && interaction.commandName === "buy") {
+      try {
       await interaction.deferReply({ ephemeral: true });
       const guild = interaction.guild;
       const selectedRole = interaction.options.getString("item");
@@ -61,7 +98,7 @@ module.exports = async (client, config) => {
               .setColor(color.gray)
               .setTitle(`${emojis.warning} Permission Denied`)
               .setDescription(
-                `${emojis.threadMark} Only member who has <@&${config.SquadSUN}> role can use this command`,
+                `${emojis.threadMark} Only members who have <@&${config.SquadSUN}> role can use this command`,
               ),
           ],
           ephemeral: true,
@@ -76,54 +113,85 @@ module.exports = async (client, config) => {
               {
                 label: guild.roles.cache.get(config.marketRole1).name,
                 value: "#r1",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r1"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole1).hexColor,
+                )}`,
                 emoji: emojis.aboutSun,
               },
               {
                 label: guild.roles.cache.get(config.marketRole2).name,
                 value: "#r2",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r2"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole2).hexColor,
+                )}`,
                 emoji: emojis.otherAchv,
               },
               {
                 label: guild.roles.cache.get(config.marketRole3).name,
                 value: "#r3",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r3"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole3).hexColor,
+                )}`,
                 emoji: emojis.leader,
               },
               {
                 label: guild.roles.cache.get(config.marketRole4).name,
                 value: "#r4",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r4"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole4).hexColor,
+                )}`,
                 emoji: emojis.staff,
               },
               {
                 label: guild.roles.cache.get(config.marketRole5).name,
                 value: "#r5",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r5"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole5).hexColor,
+                )}`,
                 emoji: emojis.partner,
               },
               {
                 label: guild.roles.cache.get(config.marketRole6).name,
                 value: "#r6",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r6"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole6).hexColor,
+                )}`,
                 emoji: emojis.partner,
               },
               {
                 label: guild.roles.cache.get(config.marketRole7).name,
                 value: "#r7",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r7"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole7).hexColor,
+                )}`,
                 emoji: emojis.partner,
               },
               {
                 label: guild.roles.cache.get(config.marketRole8).name,
                 value: "#r8",
-                description: "Description",
+                description: `Price: ${formatPrice(
+                  determineIceCoinsRequired("#r8"),
+                )} ice coins | Color: ${hexToColorName(
+                  guild.roles.cache.get(config.marketRole8).hexColor,
+                )}`,
                 emoji: emojis.partner,
               },
             ]),
         );
-
         // Fetch user's ice coins
         const user = interaction.user;
         const currencyData = await Currency.findOne({ userId: user.id });
@@ -342,6 +410,26 @@ module.exports = async (client, config) => {
           components: [],
         });
       }
-    }
+    }    
+  } catch (error) {
+    console.error(
+      `\x1b[0m`,
+      `\x1b[33m 〢`,
+      `\x1b[33m ${moment(Date.now()).format("LT")}`,
+      `\x1b[31m Error in Market Command`,
+      `\x1b[34m ${error.message}`,
+    );
+    await interaction.editReply({
+      embeds: [
+        {
+          title: `${emojis.warring} Oops!`,
+          description: `${emojis.threadMark} Something went wrong while fetching your balance. Please try again later.`,
+          color: color.gray,
+        },
+      ],
+      ephemeral: true,
+      components: [],
+    });
+  }
   });
 };

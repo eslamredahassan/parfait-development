@@ -6,6 +6,7 @@ const pollSchema = new mongoose.Schema({
   pollObject: String,
   votersIds: [String],
   duration: Number,
+  expiresAt: Date,
 });
 
 const Poll = mongoose.model("Poll", pollSchema);

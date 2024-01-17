@@ -24,7 +24,7 @@ module.exports = async (client, config) => {
 
           if (roleToRemove && member) {
             await member.roles.remove(roleToRemove);
-            console.lgo(
+            console.log(
               `\x1b[0m`,
               `\x1b[33m 〢`,
               `\x1b[33m ${moment(Date.now()).format("LT")}`,
@@ -54,20 +54,24 @@ module.exports = async (client, config) => {
           await RoleMarket.findByIdAndDelete(expiredRole._id);
         } catch (error) {
           console.error(
-            "Error processing expired role:",
-            expiredRole,
-            "Error:",
-            error.message,
+            `\x1b[0m`,
+            `\x1b[33m 〢`,
+            `\x1b[33m ${moment(Date.now()).format("LT")}`,
+            `\x1b[31m Error processing expired role: ${expiredRole}`,
+            `\x1b[33m Error`,
+            `\x1b[34m ${error.message}`,
           );
         }
       }
     } catch (error) {
       console.error(
-        "Error checking and removing expired roles:",
-        error.message,
+        `\x1b[0m`,
+        `\x1b[33m 〢`,
+        `\x1b[33m ${moment(Date.now()).format("LT")}`,
+        `\x1b[31m Error checking and removing expired roles:`,
+        `\x1b[34m ${error.message}`,
       );
     }
   };
-
   setInterval(checkExpiredRoles, 1 * 1000); // 1 second in milliseconds
 };
