@@ -197,7 +197,7 @@ module.exports = async (client, config) => {
             embeds: [
               {
                 description: `### ${emojis.market} Parfait Market\n${emojis.threadMark} Use your ${emojis.ic} **${formattedBalance}** ice coins to purchase a unique role`,
-                image: { url: banners.aboutSunBanner },
+                image: { url: banners.marketplace },
                 color: color.gray,
               },
             ],
