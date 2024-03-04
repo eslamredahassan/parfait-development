@@ -472,52 +472,348 @@ module.exports = async (client, config) => {
       const questions = {
         q0: `Hi ${interaction.user} We need to complete some information in your application, are you ready?`,
         q1: "Please send a screenshot from your in-game profile here",
-        q2: `Tell us when you are available for a tryout by our staff`,
+        q2: "When you are available for a tryout by our staff",
         q3: "What are your usual days of play and hours?",
         q4: "Have you joined any clan before?",
-        q5: "Where are you from?",
-        q6: "When did you start playing Smash Legends?",
-        q7: "Have you read the requirements?",
+        q5: "What is the highest rank you have obtained?",
+        q6: "Where are you from?",
+        q7: "When did you start playing Smash Legends?",
+        q8: "Have you read the requirements?",
       };
+
+      let askedAdditionalQuestion = false; // Variable to track if the additional question has been asked
+
       for (const [questionKey, question] of Object.entries(questions)) {
         // Ask each question in sequence
+        await thread.sendTyping();
+        await wait(5000);
         await thread.send({
           content: `${question}`,
         });
+
         // Wait for the user's response (adjust the timeout if needed)
         try {
           const collected = await thread.awaitMessages({
-            thread: filter,
+            filter: (response) => response.author.id === interaction.user.id,
             time: 86400000, // 24 hour timeout
             max: 1,
             errors: ["time"],
           });
 
-          const userResponse = collected.first().content;
+          const userResponse = collected.first().content.toLowerCase();
 
           // Process the user's response as needed
           switch (questionKey) {
-            case "q4": // Have you joined any clan before?
-              if (userResponse.toLowerCase() === "yes") {
-                // If the user answers "yes", ask for the name of the previous clan
-                await thread.send({
-                  content: "What is the name of your previous clan?",
-                });
+            case "q0": // Hi ${interaction.user} We need to complete some information in your application, are you ready?
+              const positiveResponses = [
+                "yes",
+                "yeah",
+                "yup",
+                "let's go",
+                "alright",
+              ];
+              const negativeResponses = [
+                "no",
+                "nah",
+                "not now",
+                "i'm not ready",
+                "later",
+              ];
 
-                // Wait for the user's response to the previous clan question
-                const collectedClan = await thread.awaitMessages({
-                  thread: filter,
-                  time: 86400000, // 24 hour timeout
-                  max: 1,
-                  errors: ["time"],
-                });
+              if (positiveResponses.includes(userResponse)) {
+                // User is ready, continue asking other questions
+              } else if (negativeResponses.includes(userResponse)) {
+                // User is not ready, set a timeout for 15 minutes and ask again
+                await thread.send(
+                  `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
+                );
+                await wait(15 * 1000); // 15 minutes timeout
 
-                const previousClan = collectedClan.first().content;
-                // Process the user's response to the previous clan question
-                // You can handle the user's response to the previous clan question here
+                // Continue asking the user until they are ready
+                let userReady = false;
+                while (!userReady) {
+                  await thread.sendTyping();
+                  await wait(5000);
+                  await thread.send(
+                    `Hi ${interaction.user} Are you ready now?`,
+                  );
+
+                  // Wait for the user's response
+                  try {
+                    const collectedReady = await thread.awaitMessages({
+                      filter: (response) =>
+                        response.author.id === interaction.user.id,
+                      time: 86400000, // 24 hour timeout
+                      max: 1,
+                      errors: ["time"],
+                    });
+
+                    const userReadyResponse = collectedReady
+                      .first()
+                      .content.toLowerCase();
+
+                    // Process the user's response to being ready
+                    if (positiveResponses.includes(userReadyResponse)) {
+                      // User is ready, set the flag to true and exit the loop
+                      userReady = true;
+                    } else {
+                      // User is not ready, set a timeout for 15 minutes and repeat the process
+                      await thread.send(
+                        `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
+                      );
+                      await wait(15 * 1000); // 15 minutes timeout
+                    }
+                  } catch (error) {
+                    await thread.send(`Time is Over for being ready`);
+                    return; // Stop the processing for now
+                  }
+                }
+              } else {
+                // Handle invalid responses
+                await thread.sendTyping();
+                await wait(5000);
+                await thread.send(
+                  "I'm sorry, I didn't understand your response. Please answer with yes or no.",
+                );
+                try {
+                  // Wait for the user to respond with valid answers
+                  const collectedValidResponse = await thread.awaitMessages({
+                    filter: (response) =>
+                      response.author.id === interaction.user.id &&
+                      [...positiveResponses, ...negativeResponses].includes(
+                        response.content.toLowerCase(),
+                      ),
+                    time: 86400000, // 24 hour timeout
+                    max: 1,
+                    errors: ["time"],
+                  });
+
+                  const userValidResponse = collectedValidResponse
+                    .first()
+                    .content.toLowerCase();
+                  if (positiveResponses.includes(userValidResponse)) {
+                    // User is ready, continue asking other questions
+                  } else if (negativeResponses.includes(userValidResponse)) {
+                    // User is not ready, set a timeout for 15 minutes and ask again
+                    await thread.send(
+                      `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
+                    );
+                    await wait(15 * 1000); // 15 minutes timeout
+
+                    // Continue asking the user until they are ready
+                    let userReady = false;
+                    while (!userReady) {
+                      await thread.sendTyping();
+                      await wait(5000);
+                      await thread.send(
+                        `Hi ${interaction.user} Are you ready now?`,
+                      );
+
+                      // Wait for the user's response
+                      try {
+                        const collectedReady = await thread.awaitMessages({
+                          filter: (response) =>
+                            response.author.id === interaction.user.id,
+                          time: 86400000, // 24 hour timeout
+                          max: 1,
+                          errors: ["time"],
+                        });
+
+                        const userReadyResponse = collectedReady
+                          .first()
+                          .content.toLowerCase();
+
+                        // Process the user's response to being ready
+                        if (positiveResponses.includes(userReadyResponse)) {
+                          // User is ready, set the flag to true and exit the loop
+                          userReady = true;
+                        } else {
+                          // User is not ready, set a timeout for 15 minutes and repeat the process
+                          await thread.send(
+                            `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
+                          );
+                          await wait(15 * 60 * 1000); // 15 minutes timeout
+                        }
+                      } catch (error) {
+                        await thread.send(`Time is Over for being ready`);
+                        return; // Stop the processing for now
+                      }
+                    }
+                  }
+                } catch (error) {
+                  await thread.send(`Time is Over for valid response`);
+                  return; // Stop the processing for now
+                }
               }
               break;
+
+            case "q1": // Please send a screenshot from your in-game profile here
+              if (collected.first().attachments.size > 0) {
+                // Check if the user sent a media file (image/screenshot)
+                const attachment = collected.first().attachments.first();
+                if (attachment.contentType.startsWith("image/")) {
+                  // User sent a valid image file, continue asking other questions
+                  // Additional logic for handling image can be added here if needed
+                } else {
+                  // User sent an unsupported file format, inform and wait for a valid image file
+                  await thread.send(
+                    `Unsupported file format. Please send a screenshot/image file.`,
+                  );
+                  try {
+                    // Wait for the user to send a valid image file
+                    const collectedImage = await thread.awaitMessages({
+                      filter: (response) =>
+                        response.author.id === interaction.user.id &&
+                        response.attachments.size > 0 &&
+                        response.attachments
+                          .first()
+                          .contentType.startsWith("image/"),
+                      time: 86400000, // 24 hour timeout
+                      max: 1,
+                      errors: ["time"],
+                    });
+
+                    // Process the user's response (valid image file)
+                    // You can handle the valid image file here if needed
+                  } catch (error) {
+                    await thread.send(
+                      `Time is Over for sending a valid image file`,
+                    );
+                    return; // Stop the processing for now
+                  }
+                }
+              } else {
+                // User did not send any attachments, handle accordingly
+                await thread.send(
+                  `You didn't send a screenshot. Please send a screenshot/image file.`,
+                );
+                try {
+                  // Wait for the user to send a valid image file
+                  const collectedImage = await thread.awaitMessages({
+                    filter: (response) =>
+                      response.author.id === interaction.user.id &&
+                      response.attachments.size > 0 &&
+                      response.attachments
+                        .first()
+                        .contentType.startsWith("image/"),
+                    time: 86400000, // 24 hour timeout
+                    max: 1,
+                    errors: ["time"],
+                  });
+
+                  // Process the user's response (valid image file)
+                  // You can handle the valid image file here if needed
+                } catch (error) {
+                  await thread.send(
+                    `Time is Over for sending a valid image file`,
+                  );
+                  return; // Stop the processing for now
+                }
+              }
+              break;
+
+            case "q4": // Have you joined any clan before?
+              if (["yes", "yeah", "yup", "yay"].includes(userResponse)) {
+                if (askedAdditionalQuestion) {
+                  // If the bot has already asked the additional question, proceed to the next question
+                  break;
+                }
+                // If the user answers "yes", ask the additional question
+                await thread.sendTyping();
+                await wait(5000);
+                await thread.send("What is the name of your previous clan?");
+                askedAdditionalQuestion = true; // Mark that the additional question has been asked
+                try {
+                  // Wait for the user's response to the additional question
+                  const collectedClan = await thread.awaitMessages({
+                    filter: (response) =>
+                      response.author.id === interaction.user.id,
+                    time: 86400000, // 24 hour timeout
+                    max: 1,
+                    errors: ["time"],
+                  });
+
+                  const previousClan = collectedClan.first().content;
+                  // Process the user's response to the additional question
+                  // You can handle the user's response to the additional question here
+                } catch (error) {
+                  await thread.send(`Time is Over for additional question`);
+                  return; // Stop the processing for now
+                }
+              } else if (
+                ["no", "nah", "na", "i didn'"].includes(userResponse)
+              ) {
+                // Continue asking other questions
+              } else {
+                // Handle invalid responses to q4
+                await thread.sendTyping();
+                await wait(5000);
+                await thread.send(
+                  "I'm sorry, I didn't understand your response. Please answer with yes or no.",
+                );
+                try {
+                  // Wait for the user to respond with valid answers
+                  const collectedValidResponse = await thread.awaitMessages({
+                    filter: (response) =>
+                      response.author.id === interaction.user.id &&
+                      [
+                        "yes",
+                        "yeah",
+                        "yup",
+                        "yay",
+                        "no",
+                        "nah",
+                        "na",
+                        "i didn'",
+                      ].includes(response.content.toLowerCase()),
+                    time: 86400000, // 24 hour timeout
+                    max: 1,
+                    errors: ["time"],
+                  });
+
+                  const userValidResponse = collectedValidResponse
+                    .first()
+                    .content.toLowerCase();
+                  if (
+                    ["yes", "yeah", "yup", "yay"].includes(userValidResponse)
+                  ) {
+                    // If the user provides a valid response after the clarification, ask the additional question
+                    await thread.sendTyping();
+                    await wait(5000);
+                    await thread.send(
+                      "What is the name of your previous clan?",
+                    );
+                    askedAdditionalQuestion = true; // Mark that the additional question has been asked
+                    try {
+                      // Wait for the user's response to the additional question
+                      const collectedClan = await thread.awaitMessages({
+                        filter: (response) =>
+                          response.author.id === interaction.user.id,
+                        time: 86400000, // 24 hour timeout
+                        max: 1,
+                        errors: ["time"],
+                      });
+
+                      const previousClan = collectedClan.first().content;
+                      // Process the user's response to the additional question
+                      // You can handle the user's response to the additional question here
+                    } catch (error) {
+                      await thread.send(`Time is Over for additional question`);
+                      return; // Stop the processing for now
+                    }
+                  }
+                } catch (error) {
+                  await thread.send(`Time is Over for valid response`);
+                  return; // Stop the processing for now
+                }
+              }
+              break;
+
             // Add additional cases for other questions if needed
+
+            default:
+              // Continue asking other questions for the remaining cases
+              break;
           }
         } catch (error) {
           await thread.send(`Time is Over for ${questionKey}`);
@@ -528,6 +824,7 @@ module.exports = async (client, config) => {
       await thread.send({
         content: `Thank you ${interaction.user} for providing your responses <@&${config.staffSun}> will review your application soon.`,
       });
+
       ////----------------------------////
     }
   });
