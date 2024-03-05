@@ -472,7 +472,7 @@ module.exports = async (client, config) => {
       const questions = {
         q0: `Hi ${interaction.user} We need to complete some information in your application, are you ready?`,
         q1: "Please send a screenshot from your in-game profile here",
-        q2: "When you are available for a tryout by our staff",
+        q2: "When are you available for a tryout with our staff?",
         q3: "What are your usual days of play and hours?",
         q4: "Have you joined any clan before?",
         q5: "What is the highest rank you have obtained?",
@@ -481,17 +481,25 @@ module.exports = async (client, config) => {
         q8: "Have you read the requirements?",
       };
 
-      let askedAdditionalQuestion = false; // Variable to track if the additional question has been asked
+      let askedAdditionalQuestion = false;
+      const questionsCooldown = 15 * 1000;
+
+      const positiveKeywords = ["yes", "yeah", "yup", "let's go", "alright"];
+      const negativeKeywords = [
+        "no",
+        "nah",
+        "not now",
+        "i'm not ready",
+        "later",
+      ];
 
       for (const [questionKey, question] of Object.entries(questions)) {
-        // Ask each question in sequence
         await thread.sendTyping();
         await wait(5000);
         await thread.send({
           content: `${question}`,
         });
 
-        // Wait for the user's response (adjust the timeout if needed)
         try {
           const collected = await thread.awaitMessages({
             filter: (response) => response.author.id === interaction.user.id,
@@ -502,34 +510,24 @@ module.exports = async (client, config) => {
 
           const userResponse = collected.first().content.toLowerCase();
 
-          // Process the user's response as needed
           switch (questionKey) {
-            case "q0": // Hi ${interaction.user} We need to complete some information in your application, are you ready?
-              const positiveResponses = [
-                "yes",
-                "yeah",
-                "yup",
-                "let's go",
-                "alright",
-              ];
-              const negativeResponses = [
-                "no",
-                "nah",
-                "not now",
-                "i'm not ready",
-                "later",
-              ];
-
-              if (positiveResponses.includes(userResponse)) {
+            case "q0":
+              if (
+                positiveKeywords.some((keyword) =>
+                  userResponse.includes(keyword),
+                )
+              ) {
                 // User is ready, continue asking other questions
-              } else if (negativeResponses.includes(userResponse)) {
-                // User is not ready, set a timeout for 15 minutes and ask again
+              } else if (
+                negativeKeywords.some((keyword) =>
+                  userResponse.includes(keyword),
+                )
+              ) {
                 await thread.send(
                   `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
                 );
-                await wait(15 * 1000); // 15 minutes timeout
+                await wait(questionsCooldown);
 
-                // Continue asking the user until they are ready
                 let userReady = false;
                 while (!userReady) {
                   await thread.sendTyping();
@@ -538,12 +536,11 @@ module.exports = async (client, config) => {
                     `Hi ${interaction.user} Are you ready now?`,
                   );
 
-                  // Wait for the user's response
                   try {
                     const collectedReady = await thread.awaitMessages({
                       filter: (response) =>
                         response.author.id === interaction.user.id,
-                      time: 86400000, // 24 hour timeout
+                      time: 86400000,
                       max: 1,
                       errors: ["time"],
                     });
@@ -552,24 +549,24 @@ module.exports = async (client, config) => {
                       .first()
                       .content.toLowerCase();
 
-                    // Process the user's response to being ready
-                    if (positiveResponses.includes(userReadyResponse)) {
-                      // User is ready, set the flag to true and exit the loop
+                    if (
+                      positiveKeywords.some((keyword) =>
+                        userReadyResponse.includes(keyword),
+                      )
+                    ) {
                       userReady = true;
                     } else {
-                      // User is not ready, set a timeout for 15 minutes and repeat the process
                       await thread.send(
                         `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
                       );
-                      await wait(15 * 1000); // 15 minutes timeout
+                      await wait(questionsCooldown);
                     }
                   } catch (error) {
                     await thread.send(`Time is Over for being ready`);
-                    return; // Stop the processing for now
+                    return;
                   }
                 }
               } else {
-                // Handle invalid responses
                 await thread.sendTyping();
                 await wait(5000);
                 await thread.send(
@@ -595,10 +592,12 @@ module.exports = async (client, config) => {
                     // User is ready, continue asking other questions
                   } else if (negativeResponses.includes(userValidResponse)) {
                     // User is not ready, set a timeout for 15 minutes and ask again
+                    await thread.sendTyping();
+                    await wait(5000);
                     await thread.send(
                       `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
                     );
-                    await wait(15 * 1000); // 15 minutes timeout
+                    await wait(questionsCooldown); // 15 minutes timeout
 
                     // Continue asking the user until they are ready
                     let userReady = false;
@@ -629,18 +628,24 @@ module.exports = async (client, config) => {
                           userReady = true;
                         } else {
                           // User is not ready, set a timeout for 15 minutes and repeat the process
+                          await thread.sendTyping();
+                          await wait(5000);
                           await thread.send(
                             `Okay, I'll check back in 15 minutes. If you're ready sooner, just let me know!`,
                           );
-                          await wait(15 * 60 * 1000); // 15 minutes timeout
+                          await wait(questionsCooldown); // 15 minutes timeout
                         }
                       } catch (error) {
+                        await thread.sendTyping();
+                        await wait(5000);
                         await thread.send(`Time is Over for being ready`);
                         return; // Stop the processing for now
                       }
                     }
                   }
                 } catch (error) {
+                  await thread.sendTyping();
+                  await wait(5000);
                   await thread.send(`Time is Over for valid response`);
                   return; // Stop the processing for now
                 }
@@ -656,6 +661,8 @@ module.exports = async (client, config) => {
                   // Additional logic for handling image can be added here if needed
                 } else {
                   // User sent an unsupported file format, inform and wait for a valid image file
+                  await thread.sendTyping();
+                  await wait(5000);
                   await thread.send(
                     `Unsupported file format. Please send a screenshot/image file.`,
                   );
@@ -676,6 +683,8 @@ module.exports = async (client, config) => {
                     // Process the user's response (valid image file)
                     // You can handle the valid image file here if needed
                   } catch (error) {
+                    await thread.sendTyping();
+                    await wait(5000);
                     await thread.send(
                       `Time is Over for sending a valid image file`,
                     );
@@ -684,6 +693,8 @@ module.exports = async (client, config) => {
                 }
               } else {
                 // User did not send any attachments, handle accordingly
+                await thread.sendTyping();
+                await wait(5000);
                 await thread.send(
                   `You didn't send a screenshot. Please send a screenshot/image file.`,
                 );
@@ -704,6 +715,8 @@ module.exports = async (client, config) => {
                   // Process the user's response (valid image file)
                   // You can handle the valid image file here if needed
                 } catch (error) {
+                  await thread.sendTyping();
+                  await wait(5000);
                   await thread.send(
                     `Time is Over for sending a valid image file`,
                   );
@@ -737,11 +750,13 @@ module.exports = async (client, config) => {
                   // Process the user's response to the additional question
                   // You can handle the user's response to the additional question here
                 } catch (error) {
+                  await thread.sendTyping();
+                  await wait(5000);
                   await thread.send(`Time is Over for additional question`);
                   return; // Stop the processing for now
                 }
               } else if (
-                ["no", "nah", "na", "i didn'"].includes(userResponse)
+                ["no", "nah", "na", "i didn't"].includes(userResponse)
               ) {
                 // Continue asking other questions
               } else {
@@ -798,33 +813,37 @@ module.exports = async (client, config) => {
                       // Process the user's response to the additional question
                       // You can handle the user's response to the additional question here
                     } catch (error) {
+                      await thread.sendTyping();
+                      await wait(5000);
                       await thread.send(`Time is Over for additional question`);
                       return; // Stop the processing for now
                     }
                   }
                 } catch (error) {
+                  await thread.sendTyping();
+                  await wait(5000);
                   await thread.send(`Time is Over for valid response`);
                   return; // Stop the processing for now
                 }
               }
               break;
-
             // Add additional cases for other questions if needed
-
             default:
               // Continue asking other questions for the remaining cases
               break;
           }
         } catch (error) {
+          await thread.sendTyping();
+          await wait(5000);
           await thread.send(`Time is Over for ${questionKey}`);
         }
       }
-
       // Send a thanks message after all questions are answered
+      await thread.sendTyping();
+      await wait(5000);
       await thread.send({
         content: `Thank you ${interaction.user} for providing your responses <@&${config.staffSun}> will review your application soon.`,
       });
-
       ////----------------------------////
     }
   });
